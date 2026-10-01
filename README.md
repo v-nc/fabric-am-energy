@@ -60,6 +60,9 @@ docker compose kill -s USR1 gateway       # toggle a simulated network outage (b
 docker compose exec gateway tail -f /data/out/events-$(date -u +%F).jsonl
 ```
 
+History for the backfill (12 months, about 5M rows, written to `data/history/` with a `ground_truth.json` of the
+injected faults): `cd edge && npm run history`.
+
 Set `DURATION_SCALE=0.0333` in `.env` to run job cycles 30 times faster for a demo. Tests: `cd edge && npm ci && npm test`.
 
 ## Status

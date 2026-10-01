@@ -1,0 +1,16 @@
+{
+  "name": "@am-energy/history",
+  "private": true,
+  "type": "module",
+  "exports": "./src/generate.ts",
+  "scripts": {
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@am-energy/shared": "*",
+    "hyparquet-writer": "^0.16.10"
+  },
+  "devDependencies": {
+    "hyparquet": "^1.31.2"
+  }
+}

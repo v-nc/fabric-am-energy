@@ -5,11 +5,13 @@
   "workspaces": [
     "shared",
     "opcua-sim",
-    "gateway"
+    "gateway",
+    "history"
   ],
   "scripts": {
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "history": "npm start -w @am-energy/history"
   },
   "engines": {
     "node": ">=22"
