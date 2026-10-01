@@ -5,6 +5,7 @@ import { parquetReadObjects } from 'hyparquet';
 import { afterAll, describe, expect, it } from 'vitest';
 import { loadAssumptions, type Assumptions } from '@am-energy/shared';
 import { generateHistory, monthStarts, type GroundTruth, type HistoryRow } from '../src/generate.ts';
+import { masterSnapshots } from '../src/master.ts';
 import { writeMonthParquet } from '../src/parquet.ts';
 
 const dir = mkdtempSync(join(tmpdir(), 'am-energy-history-'));
@@ -93,5 +94,18 @@ describe('writeMonthParquet', () => {
       expect(new Date(back[0]!.ts_source as Date).getTime()).toBe(rows[0]!.ts_source);
       expect('power_factor' in back[0]!).toBe(month === '2026-09');
     }
+  });
+});
+
+describe('masterSnapshots', () => {
+  it('applies master data changes from their month on', () => {
+    const a = loadAssumptions();
+    const snaps = masterSnapshots(a, monthStarts(END, 12));
+    const ls05 = snaps.map((s) => s.find((r) => r.machine_id === 'LS05')!.hall_id);
+    expect(ls05.slice(0, 4).every((h) => h === 'H1')).toBe(true);
+    expect(ls05.slice(4).every((h) => h === 'H2')).toBe(true);
+    const ls07 = snaps.map((s) => s.find((r) => r.machine_id === 'LS07')!.meter_serial);
+    expect(ls07[6]).toBe('EM07-SN-A');
+    expect(ls07[7]).toBe('EM07-SN-B');
   });
 });

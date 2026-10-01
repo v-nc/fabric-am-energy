@@ -15,6 +15,16 @@ export const Assumptions = z.strictObject({
     halls: z.array(z.strictObject({ hall_id: z.string(), name: z.string() })).min(1),
     machines: z.array(z.strictObject({ machine_id: z.string(), meter_id: z.string(), hall_id: z.string() })).min(1),
   }),
+  master_data: z.strictObject({
+    changes: z.array(
+      z.strictObject({
+        machine_id: z.string(),
+        field: z.enum(['hall_id', 'meter_serial']),
+        value: z.string(),
+        at_month: z.int().nonnegative(),
+      }),
+    ),
+  }),
   electrical: z.strictObject({
     voltage_v_nominal: z.number().positive(),
     voltage_jitter_pct: z.number().nonnegative(),
@@ -89,6 +99,10 @@ function checkReferences(a: Assumptions): void {
     if (meters.has(m.meter_id)) throw new Error(`duplicate meter_id ${m.meter_id}`);
     machines.add(m.machine_id);
     meters.add(m.meter_id);
+  }
+  for (const c of a.master_data.changes) {
+    if (!machines.has(c.machine_id)) throw new Error(`master_data: unknown machine ${c.machine_id}`);
+    if (c.field === 'hall_id' && !halls.has(c.value)) throw new Error(`master_data: unknown hall ${c.value}`);
   }
   for (const r of a.faults.counter_reset) {
     if (!meters.has(r.meter_id)) throw new Error(`counter_reset: unknown meter ${r.meter_id}`);

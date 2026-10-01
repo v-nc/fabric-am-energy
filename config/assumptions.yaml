@@ -23,6 +23,13 @@ park:
     - { machine_id: LS09, meter_id: EM09, hall_id: H2 }
     - { machine_id: LS10, meter_id: EM10, hall_id: H2 }
 
+# Master data changes, exported by the history generator as monthly snapshots (an ERP/MES export in real life).
+# gold.dim_machine keeps their history (SCD type 2).
+master_data:
+  changes:
+    - { machine_id: LS05, field: hall_id, value: H2, at_month: 4 } # 3D printer moved to hall 2
+    - { machine_id: LS07, field: meter_serial, value: EM07-SN-B, at_month: 7 } # meter replaced, see counter_reset
+
 electrical:
   voltage_v_nominal: 400 # three-phase, line to line
   voltage_jitter_pct: 1.5

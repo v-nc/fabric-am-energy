@@ -1,7 +1,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadAssumptions } from '@am-energy/shared';
-import { generateHistory } from './generate.ts';
+import { generateHistory, monthStarts } from './generate.ts';
+import { masterSnapshots, toCsv } from './master.ts';
 import { writeMonthParquet } from './parquet.ts';
 
 // The end date is fixed by default so the history is identical on every run; HISTORY_END overrides it.
@@ -9,9 +10,10 @@ const endMs = Date.parse(process.env.HISTORY_END ?? '2026-10-01T00:00:00Z');
 const outDir = process.env.HISTORY_DIR ?? '../../data/history';
 mkdirSync(outDir, { recursive: true });
 
+const assumptions = loadAssumptions();
 let total = 0;
 const truth = await generateHistory({
-  assumptions: loadAssumptions(),
+  assumptions,
   endMs,
   onMonth: (month, rows) => {
     const file = join(outDir, `meter_events_${month}.parquet`);
@@ -20,6 +22,10 @@ const truth = await generateHistory({
     console.log(`${file}: ${rows.length} rows`);
   },
 });
+mkdirSync(join(outDir, 'master'), { recursive: true });
+for (const snapshot of masterSnapshots(assumptions, monthStarts(endMs, assumptions.volumes.history_months))) {
+  writeFileSync(join(outDir, 'master', `machine_master_${snapshot[0]!.snapshot_date}.csv`), toCsv(snapshot));
+}
 writeFileSync(join(outDir, 'ground_truth.json'), JSON.stringify(truth, null, 2));
 console.log(
   `${total} rows, ${truth.duplicates} duplicates, ${truth.late_events} late events, ` +
