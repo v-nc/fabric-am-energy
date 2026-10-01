@@ -1,0 +1,34 @@
+# Secrets: the Eventstream connection string and GitHub token live only here
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Node / TypeScript
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+
+# Python / Spark (local tests)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+spark-warehouse/
+metastore_db/
+derby.log
+*.egg-info/
+build/
+
+# Generated data (history Parquet, gateway buffer, local sinks, checkpoints)
+data/
+*.parquet
+*.sqlite
+checkpoints/
+
+# Tooling
+.playwright-mcp/
+.DS_Store
+.idea/
