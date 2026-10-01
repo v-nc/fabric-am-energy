@@ -69,6 +69,11 @@ correct.
 
 ## Platform
 
+**21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all
+layers, so one SQL analytics endpoint, one set of permissions and one Direct Lake source are simpler. Three Lakehouses
+would pay off with different owners, retention or access per layer; workspace roles plus OneLake security on the
+schemas cover that here if it ever comes up.
+
 **18. Fabric in the user's own Microsoft 365 tenant.** Signing up to Fabric with a work address created an
 unmanaged tenant; it was taken over by verifying the domain with a DNS TXT record. The tenant switch "Users can sync
 workspace items with GitHub repositories" is enabled for the whole organization because there is one user; in a
@@ -85,7 +90,6 @@ in `config/assumptions.yaml`.
 
 ## Open
 
-- **One Lakehouse with bronze/silver/gold schemas, or three Lakehouses?** Decide in Phase 2.
 - **Which silver and gold steps become materialized lake views and which stay notebooks?** MLVs suit declarative,
   incremental steps with `CHECK` constraints. Window-heavy logic (energy deltas, state intervals) and MERGE stay in
   notebooks. Decide step by step in Phase 3.
