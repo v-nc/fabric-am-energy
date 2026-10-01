@@ -82,7 +82,8 @@ cd spark && uv sync && uv run pytest     # end-to-end tests use data/history fro
 
 ## Status
 
-Work in progress. Phase 0 (everything that runs without Fabric) is done; the Fabric trial is next. Sections still to
+Work in progress. Phase 0 (everything that runs without Fabric) is done. Fabric runs on a paid F4 capacity that is
+paused when idle (`scripts/capacity.sh`, see decision 19). Sections still to
 come: how to reproduce in Fabric, DP-700 skill mapping, limits, and what a production setup would add.
 
 ## License

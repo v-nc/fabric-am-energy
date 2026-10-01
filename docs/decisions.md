@@ -74,7 +74,13 @@ unmanaged tenant; it was taken over by verifying the domain with a DNS TXT recor
 workspace items with GitHub repositories" is enabled for the whole organization because there is one user; in a
 company it would be limited to a security group of developers.
 
-**19. Synthetic data, every parameter an assumption.** No real machine, customer or company data. All parameters are
+**19. A paid F4 capacity, paused when idle, instead of the free trial.** Microsoft refused the 60-day Fabric trial for
+the brand-new tenant (community reports put the minimum tenant age at about 90 days). The capacity is an Azure
+pay-as-you-go F4 in the tenant's home region (Sweden Central, €0.67/h at list price), created and paused from the
+terminal with `scripts/capacity.sh`, under a monthly budget with e-mail alerts. Paused, it costs nothing for compute.
+Sizing, pausing and costing a capacity is also part of running Fabric in production.
+
+**20. Synthetic data, every parameter an assumption.** No real machine, customer or company data. All parameters are
 in `config/assumptions.yaml`.
 
 ## Open
