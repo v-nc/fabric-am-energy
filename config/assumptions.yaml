@@ -1,0 +1,84 @@
+# Simulation assumptions for a park of polymer laser-sintering 3D printers.
+#
+# EVERY VALUE IN THIS FILE IS AN ASSUMPTION chosen to look plausible. None of them is a specification of a real
+# machine, manufacturer, site or tariff. Change them freely; the simulator, gateway and history generator all read
+# this one file, so a change applies everywhere.
+
+seed: 20190401 # all random draws derive from this seed, so runs are reproducible
+
+park:
+  halls:
+    - { hall_id: H1, name: Hall 1 }
+    - { hall_id: H2, name: Hall 2 }
+  # meter_id belongs to the IP energy meter wired to the 3D printer, not to the 3D printer itself
+  machines:
+    - { machine_id: LS01, meter_id: EM01, hall_id: H1 }
+    - { machine_id: LS02, meter_id: EM02, hall_id: H1 }
+    - { machine_id: LS03, meter_id: EM03, hall_id: H1 }
+    - { machine_id: LS04, meter_id: EM04, hall_id: H1 }
+    - { machine_id: LS05, meter_id: EM05, hall_id: H1 }
+    - { machine_id: LS06, meter_id: EM06, hall_id: H2 }
+    - { machine_id: LS07, meter_id: EM07, hall_id: H2 }
+    - { machine_id: LS08, meter_id: EM08, hall_id: H2 }
+    - { machine_id: LS09, meter_id: EM09, hall_id: H2 }
+    - { machine_id: LS10, meter_id: EM10, hall_id: H2 }
+
+electrical:
+  voltage_v_nominal: 400 # three-phase, line to line
+  voltage_jitter_pct: 1.5
+  power_factor: [0.90, 0.97] # phase currents are derived as I = P / (sqrt(3) * U * pf)
+  phase_imbalance_pct: 4 # max deviation of one phase current from the mean
+
+# Power draw per state in kW as [min, max], and duration in hours as [min, max] where a state has a typical length.
+states:
+  off: { power_kw: [0.05, 0.15] }
+  idle: { power_kw: [1.0, 2.0] }
+  heat_up: { power_kw: [6.0, 9.0], duration_h: [1.5, 2.5] }
+  building:
+    power_kw: [3.0, 5.0] # base load: chamber and powder bed heating
+    exposure_extra_kw: [1.0, 2.0] # laser and scanner while a layer is exposed
+    layer_cycle_s: [20, 40] # exposure plus recoating
+    exposure_share: [0.4, 0.7] # share of a layer cycle spent exposing
+    duration_h: [10, 40]
+  cool_down: { power_kw: [1.0, 2.0], duration_h: [6, 14] }
+  unpacking: { power_kw: [0.3, 0.8], duration_h: [0.5, 2.0] }
+
+schedule:
+  builds_per_machine_per_week: [1.5, 3.0]
+  idle_between_jobs_h: [1, 24]
+  off_share_of_gaps: 0.3 # share of long gaps where the 3D printer is switched off instead of idling
+
+# Injected data faults. Each must be handled downstream and show on the data-quality report page.
+faults:
+  heatup_overrun:
+    probability_per_build: 0.06
+    duration_factor: [1.4, 2.5] # multiplies the drawn heat-up duration
+  meter_dropout:
+    per_meter_per_month: 2
+    duration_min: [5, 180]
+  duplicates:
+    probability_per_event: 0.002
+  gateway_outage: # the gateway buffers, then replays: late and out-of-order events
+    per_month: 1
+    duration_min: [10, 120]
+  counter_reset: # a meter is replaced and its kWh counter restarts near zero
+    - { meter_id: EM07, at_month: 7 }
+  spikes:
+    probability_per_event: 0.0005
+    factor: [5, 20]
+  opc_status:
+    uncertain_probability: 0.003
+    bad_probability: 0.001
+  schema_change:
+    v2_from_month: 9 # schema_version 2 adds power_factor
+
+volumes:
+  live_interval_s: [5, 10]
+  history_interval_s: 60
+  history_months: 12
+
+# Tariff used by gold.dim_tariff, in CHF per kWh.
+tariff:
+  currency: CHF
+  peak: { chf_per_kwh: 0.27, weekdays: [1, 2, 3, 4, 5], from_hour: 7, to_hour: 20 }
+  off_peak: { chf_per_kwh: 0.19 }
