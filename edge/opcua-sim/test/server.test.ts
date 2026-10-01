@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { AttributeIds, OPCUACertificateManager, OPCUAClient, StatusCodes, type ClientSession } from 'node-opcua';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { MACHINE_STATES, loadAssumptions } from '@am-energy/shared';
-import { NAMESPACE_URI, nodeIds, startSimServer, type SimServer } from '../src/server.ts';
+import { MACHINE_STATES, NAMESPACE_URI, loadAssumptions, nodeIds } from '@am-energy/shared';
+import { startSimServer, type SimServer } from '../src/server.ts';
 
 const dir = mkdtempSync(join(tmpdir(), 'am-energy-sim-'));
 let sim: SimServer;

@@ -49,6 +49,19 @@ flowchart LR
 | `scripts/` | Fabric CLI / REST helpers |
 | `docs/` | Design decisions and screenshots |
 
+## Run the edge side
+
+Needs Docker. The gateway writes JSON lines inside its volume until a Fabric Eventstream is configured in `.env`.
+
+```bash
+cp .env.example .env
+docker compose up --build                 # OPC UA simulator + edge gateway
+docker compose kill -s USR1 gateway       # toggle a simulated network outage (buffer, then replay)
+docker compose exec gateway tail -f /data/out/events-$(date -u +%F).jsonl
+```
+
+Set `DURATION_SCALE=0.0333` in `.env` to run job cycles 30 times faster for a demo. Tests: `cd edge && npm ci && npm test`.
+
 ## Status
 
 Work in progress. Sections still to come: design decisions, how to reproduce, DP-700 skill mapping, limits, and what

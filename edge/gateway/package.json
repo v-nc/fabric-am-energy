@@ -1,0 +1,17 @@
+{
+  "name": "@am-energy/gateway",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "start": "tsx src/main.ts"
+  },
+  "devDependencies": {
+    "@am-energy/opcua-sim": "*"
+  },
+  "dependencies": {
+    "@am-energy/shared": "*",
+    "@azure/event-hubs": "^6.0.4",
+    "node-opcua": "^2.186.14"
+  }
+}
