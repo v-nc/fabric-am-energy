@@ -18,7 +18,7 @@ const fields = {
   /** Gateway time (UTC) when the event left the edge. Late events have ts_edge far after ts_source. */
   ts_edge: z.iso.datetime(),
   state: MachineState,
-  /** Set for the whole job cycle (heat-up to unpacking) so energy can be attributed per job; null otherwise. */
+  /** Set only while building; null in every other state. Heat-ups are matched to jobs downstream, by time. */
   job_id: z.string().min(1).nullable(),
   l1_a: z.number().nonnegative(),
   l2_a: z.number().nonnegative(),

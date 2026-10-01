@@ -36,7 +36,6 @@ export const Assumptions = z.strictObject({
     unpacking: stateSpec.required({ duration_h: true }),
   }),
   schedule: z.strictObject({
-    builds_per_machine_per_week: range,
     idle_between_jobs_h: range,
     off_share_of_gaps: z.number().min(0).max(1),
   }),
@@ -61,12 +60,12 @@ export const Assumptions = z.strictObject({
   tariff: z.strictObject({
     currency: z.string(),
     peak: z.strictObject({
-      chf_per_kwh: z.number().nonnegative(),
+      price_per_kwh: z.number().nonnegative(),
       weekdays: z.array(z.int().min(1).max(7)),
       from_hour: z.int().min(0).max(23),
       to_hour: z.int().min(1).max(24),
     }),
-    off_peak: z.strictObject({ chf_per_kwh: z.number().nonnegative() }),
+    off_peak: z.strictObject({ price_per_kwh: z.number().nonnegative() }),
   }),
 });
 export type Assumptions = z.infer<typeof Assumptions>;

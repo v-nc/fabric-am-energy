@@ -44,7 +44,8 @@ states:
   unpacking: { power_kw: [0.3, 0.8], duration_h: [0.5, 2.0] }
 
 schedule:
-  builds_per_machine_per_week: [1.5, 3.0]
+  # A job cycle is heat-up, building, cool-down, unpacking; the gap before the next heat-up is idle or off.
+  # With the durations above this gives roughly 3 builds per 3D printer per week.
   idle_between_jobs_h: [1, 24]
   off_share_of_gaps: 0.3 # share of long gaps where the 3D printer is switched off instead of idling
 
@@ -77,8 +78,8 @@ volumes:
   history_interval_s: 60
   history_months: 12
 
-# Tariff used by gold.dim_tariff, in CHF per kWh.
+# Tariff used by gold.dim_tariff, in EUR per kWh. weekdays use ISO numbering (1 = Monday).
 tariff:
-  currency: CHF
-  peak: { chf_per_kwh: 0.27, weekdays: [1, 2, 3, 4, 5], from_hour: 7, to_hour: 20 }
-  off_peak: { chf_per_kwh: 0.19 }
+  currency: EUR
+  peak: { price_per_kwh: 0.24, weekdays: [1, 2, 3, 4, 5], from_hour: 7, to_hour: 20 }
+  off_peak: { price_per_kwh: 0.17 }

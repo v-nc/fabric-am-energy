@@ -1,0 +1,13 @@
+{
+  "name": "@am-energy/opcua-sim",
+  "private": true,
+  "type": "module",
+  "exports": "./src/server.ts",
+  "scripts": {
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@am-energy/shared": "*",
+    "node-opcua": "^2.186.14"
+  }
+}
