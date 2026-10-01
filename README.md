@@ -65,6 +65,16 @@ injected faults): `cd edge && npm run history`.
 
 Set `DURATION_SCALE=0.0333` in `.env` to run job cycles 30 times faster for a demo. Tests: `cd edge && npm ci && npm test`.
 
+## Transformations (local tests)
+
+`spark/` is a Python package of pure DataFrame functions (bronze → silver → gold) that runs unchanged in local tests and
+in Fabric (as a wheel in a Fabric Environment). Local tests use the versions of Fabric Runtime 2.0 (Spark 4.1,
+Delta 4.2, Python 3.13) and need Java 17+:
+
+```bash
+cd spark && uv sync && uv run pytest     # end-to-end tests use data/history from `npm run history`
+```
+
 ## Status
 
 Work in progress. Sections still to come: design decisions, how to reproduce, DP-700 skill mapping, limits, and what
