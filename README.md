@@ -75,10 +75,15 @@ Delta 4.2, Python 3.13) and need Java 17+:
 cd spark && uv sync && uv run pytest     # end-to-end tests use data/history from `npm run history`
 ```
 
+## Design
+
+- [Design decisions](docs/decisions.md): why the edge, the pipeline and the platform are built the way they are.
+- [Semantic model](model/README.md): star schema, DAX measures, row-level security and report pages.
+
 ## Status
 
-Work in progress. Sections still to come: design decisions, how to reproduce, DP-700 skill mapping, limits, and what
-a production setup would add.
+Work in progress. Phase 0 (everything that runs without Fabric) is done; the Fabric trial is next. Sections still to
+come: how to reproduce in Fabric, DP-700 skill mapping, limits, and what a production setup would add.
 
 ## License
 
