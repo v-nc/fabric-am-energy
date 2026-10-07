@@ -7,7 +7,7 @@ from pyspark.sql import functions as F
 
 from am_energy import PipelineConfig
 from am_energy.bronze import BRONZE_SCHEMA, to_bronze
-from am_energy.silver import deduplicate, merge_into, to_silver
+from am_energy.silver import deduplicate, merge_into, silver_increment, to_silver
 from conftest import HISTORY, bronze_df, event, ts
 
 CFG = PipelineConfig()
@@ -81,3 +81,19 @@ def test_merge_is_insert_only_and_idempotent(spark):
     merge_into(spark, "silver_merge_test", late_dup)
     t = {r["seq"]: r["power_kw"] for r in spark.table("silver_merge_test").collect()}
     assert t == {0: 1.5, 1: 1.5, 2: 1.5}
+
+
+def test_increment_uses_earlier_rows_as_neighbours_and_returns_only_the_batch(spark):
+    earlier = bronze_df(spark, [event(0), event(1), event(2)])
+    batch = bronze_df(spark, [event(3, power_kw=12.0), event(4), event(2)])  # spike at the boundary, plus a replay of 2
+    silver, quarantine = silver_increment(batch, earlier, CFG)
+    assert {r["seq"]: r["dq_reason"] for r in quarantine.collect()} == {3: "spike"}
+    assert sorted(r["seq"] for r in silver.collect()) == [2, 4]  # 0 and 1 are context only; 2 is deduplicated by MERGE
+
+
+def test_merge_into_a_new_path_creates_the_table(spark, tmp_path):
+    target = str(tmp_path / "silver_path")
+    silver, _ = to_silver(bronze_df(spark, [event(0)]), CFG)
+    merge_into(spark, target, silver)
+    merge_into(spark, target, silver)
+    assert spark.read.format("delta").load(target).count() == 1

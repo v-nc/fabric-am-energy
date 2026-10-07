@@ -62,16 +62,38 @@ def to_silver(bronze: DataFrame, cfg: PipelineConfig) -> tuple[DataFrame, DataFr
     return silver, quarantine
 
 
-def merge_into(spark: SparkSession, table: str, updates: DataFrame) -> None:
+def silver_increment(
+    batch: DataFrame, context: DataFrame, cfg: PipelineConfig, margin_minutes: int = 30
+) -> tuple[DataFrame, DataFrame]:
+    """Checks one incremental batch of bronze rows. The spike rule needs each reading's neighbours, which may sit in an
+    earlier batch, so bronze rows of the same meters within margin_minutes of the batch are added as context. Only
+    the batch's own measurements are returned; context rows were already processed."""
+    keys = batch.select(*NATURAL_KEY).distinct()
+    bounds = batch.agg(
+        (F.min("ts_source") - F.expr(f"INTERVAL {margin_minutes} MINUTES")).alias("lo"),
+        (F.max("ts_source") + F.expr(f"INTERVAL {margin_minutes} MINUTES")).alias("hi"),
+    )
+    meters = batch.select("meter_id").distinct()
+    nearby = (
+        context.join(meters, "meter_id", "left_semi")
+        .crossJoin(F.broadcast(bounds))
+        .where(F.col("ts_source").between(F.col("lo"), F.col("hi")))
+        .drop("lo", "hi")
+    )
+    silver, quarantine = to_silver(batch.unionByName(nearby), cfg)
+    return silver.join(keys, NATURAL_KEY, "left_semi"), quarantine.join(keys, NATURAL_KEY, "left_semi")
+
+
+def merge_into(spark: SparkSession, target: str, updates: DataFrame) -> None:
     """Insert-only MERGE on the natural key: a measurement that is already in silver is never overwritten, so replays
-    and duplicates across batches are harmless and the job can be re-run safely (idempotent)."""
+    and duplicates across batches are harmless and the job can be re-run safely (idempotent). target is a table name
+    or a Delta path; a missing path is created from the first batch."""
     from delta.tables import DeltaTable
 
+    is_path = "://" in target or target.startswith("/")
+    if is_path and not DeltaTable.isDeltaTable(spark, target):
+        updates.write.format("delta").save(target)
+        return
+    table = DeltaTable.forPath(spark, target) if is_path else DeltaTable.forName(spark, target)
     on = " AND ".join(f"t.{k} = s.{k}" for k in NATURAL_KEY)
-    (
-        DeltaTable.forName(spark, table)
-        .alias("t")
-        .merge(updates.alias("s"), on)
-        .whenNotMatchedInsertAll()
-        .execute()
-    )
+    table.alias("t").merge(updates.alias("s"), on).whenNotMatchedInsertAll().execute()
