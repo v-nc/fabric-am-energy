@@ -89,7 +89,7 @@ Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progres
 | 0 | Everything that runs without Fabric: simulator, gateway, history, transformations, model on paper | ✅ |
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
-| 3 | Silver and gold, orchestration, table maintenance | 🔄 silver |
+| 3 | Silver and gold, orchestration, table maintenance | 🔄 silver done, gold next |
 | 4 | Direct Lake semantic model and Power BI report | ⬜ |
 | 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
 | 6 | Packaging: README, screenshots, demo video | ⬜ |
@@ -118,9 +118,11 @@ and Git connection are created by script (`scripts/`).
 - *History:* Parquet files uploaded to OneLake → notebook `nb_load_history_bronze` → `bronze.history_meter_events`,
   as a full load and incrementally with a file-time watermark.
 
-**Silver (in progress).** Notebook `nb_silver` reads both bronze tables with Spark Structured Streaming
-(`availableNow`, so each run processes only new rows), checks data quality, sends rejected rows to
-`silver.quarantine` with a reason, and writes `silver.meter_readings` with an idempotent insert-only MERGE.
+**Silver.** Notebook `nb_silver` reads both bronze tables with Spark Structured Streaming (`availableNow`, so each
+run processes only new rows), checks data quality, sends rejected rows to `silver.quarantine` with a reason, and
+writes `silver.meter_readings` with an idempotent insert-only MERGE. First run in Fabric: 5,247,269 history rows lost
+exactly the 10,522 injected duplicates; 7,648 rows went to quarantine (Bad status, implausible power, spikes) and
+3,715 accepted rows are flagged late (replayed after simulated gateway outages).
 
 **Next.** Gold star schema, a scheduled pipeline with table maintenance, then the semantic model and report.
 
