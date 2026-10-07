@@ -8,7 +8,7 @@ from pyspark.sql import functions as F
 from am_energy import PipelineConfig
 from am_energy import gold
 from am_energy.silver import to_silver
-from conftest import bronze_df, event
+from conftest import bronze_df, event, ts
 
 CFG = PipelineConfig()
 
@@ -89,6 +89,13 @@ def test_heatup_matched_to_its_job_and_flagged(spark, heatup_minutes, overrun):
     assert h[0]["duration_h"] == pytest.approx(heatup_minutes / 60)
     assert h[0]["is_overrun"] is overrun
     assert h[0]["kwh"] == pytest.approx(7.0 * heatup_minutes / 60)
+
+
+def test_a_gap_at_the_end_of_a_heatup_is_not_an_overrun(spark):
+    rows = [r for r in job_cycle_rows(120) if not 100 <= (r["ts_source"] - ts(0)).total_seconds() / 60 < 200]
+    h = gold.fact_heatup(gold.state_intervals(silver_of(spark, rows), CFG), CFG).collect()
+    assert len(h) == 1 and h[0]["duration_h"] > CFG.heatup_threshold_h  # looks too long because the end is hidden
+    assert h[0]["has_gap"] and not h[0]["is_overrun"]
 
 
 def test_build_job_energy_includes_heatup_and_cooldown(spark):

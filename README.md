@@ -89,7 +89,7 @@ Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progres
 | 0 | Everything that runs without Fabric: simulator, gateway, history, transformations, model on paper | ✅ |
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
-| 3 | Silver and gold, orchestration, table maintenance | 🔄 silver done, gold next |
+| 3 | Silver and gold, orchestration, table maintenance | 🔄 silver and gold done; pipeline next |
 | 4 | Direct Lake semantic model and Power BI report | ⬜ |
 | 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
 | 6 | Packaging: README, screenshots, demo video | ⬜ |
@@ -124,7 +124,17 @@ writes `silver.meter_readings` with an idempotent insert-only MERGE. First run i
 exactly the 10,522 injected duplicates; 7,648 rows went to quarantine (Bad status, implausible power, spikes) and
 3,715 accepted rows are flagged late (replayed after simulated gateway outages).
 
-**Next.** Gold star schema, a scheduled pipeline with table maintenance, then the semantic model and report.
+**Gold.** Notebook `nb_gold` rebuilds a star schema from silver: facts for 15-minute energy and cost (time-of-use
+tariff), energy per machine state, heat-ups, build jobs and daily data quality, with dimensions for machine (SCD type
+2: a hall move and a meter swap create new versions), date, 15-minute slot, state and tariff. Tables are written with
+V-Order for fast reads by Power BI.
+
+Heat-up overrun detection (the 2019 alert) checked against the generator's ground truth over 12 months: 100 of 108
+injected overruns found, no false alarms. The 8 missed ones lasted 2.3–2.6 h: the generator stretched a short normal
+heat-up, so they stay inside the normal range (up to 2.5 h) and below the 2.6 h alert threshold; no duration rule can
+tell them apart. That is a limit of the simulated data, kept visible rather than tuned away.
+
+**Next.** A scheduled pipeline with table maintenance (OPTIMIZE, VACUUM), then the semantic model and report.
 
 ### How code reaches Fabric
 

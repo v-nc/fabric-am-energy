@@ -196,7 +196,8 @@ def fact_heatup(intervals: DataFrame, cfg: PipelineConfig) -> DataFrame:
         "duration_h",
         F.lit(cfg.heatup_baseline_h).alias("baseline_h"),
         F.lit(cfg.heatup_threshold_h).alias("threshold_h"),
-        (F.col("duration_h") > cfg.heatup_threshold_h).alias("is_overrun"),
+        # A gap hides when the heat-up really ended, so it can't be judged; it shows on the data quality page instead.
+        ((F.col("duration_h") > cfg.heatup_threshold_h) & ~F.col("has_gap")).alias("is_overrun"),
         "kwh",
         "has_gap",
     )

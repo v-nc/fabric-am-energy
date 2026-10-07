@@ -82,6 +82,10 @@ grows, the next step is recomputing only the local days touched by new silver ro
 their own timestamp; day-level facts use noon of the day, since versions change at midnight. Energy before LS05's
 hall move stays with hall 1, which row-level security by hall relies on.
 
+**25. A heat-up whose end falls in a data gap is not flagged as an overrun.** The gap hides when the heat-up
+really ended, so its measured length is an upper bound. Over the full year this removed the only 2 false alarms;
+those heat-ups show on the data quality page instead (`has_gap`).
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all
