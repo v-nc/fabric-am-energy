@@ -1,0 +1,148 @@
+{
+  "sources": [
+    {
+      "id": "87539446-4185-48f7-8f39-e77b8313c9d8",
+      "name": "edge-gateway",
+      "type": "CustomEndpoint",
+      "properties": {}
+    }
+  ],
+  "destinations": [
+    {
+      "id": "69700d79-d8d6-4027-87dd-84c6a75379e2",
+      "name": "lh-bronze",
+      "type": "Lakehouse",
+      "properties": {
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "cdd9db39-3986-8034-4865-c9549d7ad7e7",
+        "schema": "bronze",
+        "deltaTable": "stream_meter_events",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "es-am-energy-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "es-am-energy-stream",
+          "schema": {
+            "columns": [
+              {
+                "name": "schema_version",
+                "type": "BigInt",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "machine_id",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "meter_id",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "seq",
+                "type": "BigInt",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "ts_source",
+                "type": "DateTime",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "ts_edge",
+                "type": "DateTime",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "state",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "job_id",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "l1_a",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "l2_a",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "l3_a",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "voltage_v",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "power_kw",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "energy_kwh_total",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "opc_status",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "streams": [
+    {
+      "id": "b91381cb-0f2c-4885-9650-338646773068",
+      "name": "es-am-energy-stream",
+      "type": "DefaultStream",
+      "properties": {},
+      "inputNodes": [
+        {
+          "name": "edge-gateway"
+        }
+      ]
+    }
+  ],
+  "operators": [],
+  "compatibilityLevel": "1.1"
+}

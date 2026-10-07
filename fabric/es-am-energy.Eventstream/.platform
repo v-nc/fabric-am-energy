@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Eventstream",
+    "displayName": "es-am-energy"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "729001d0-48b3-b5f7-42fe-07af08f5931f"
+  }
+}
