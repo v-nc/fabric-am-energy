@@ -101,3 +101,34 @@ def test_data_quality_report_accounts_for_everything(run):
     assert totals["events_received"] == run["bronze"].count()
     assert totals["duplicates_removed"] > 0 and totals["rejected_bad_status"] > 0 and totals["rejected_spike"] > 0
     assert totals["gaps"] > 0 and totals["counter_resets"] == 1
+
+
+@pytest.fixture(scope="module")
+def built(spark, run):
+    snapshots = spark.read.option("header", "true").csv(str(HISTORY / "master" / "*.csv"))
+    return gold.build_gold(spark, run["bronze"], run["silver"], run["quarantine"], snapshots, CFG)
+
+
+def test_gold_builds_every_table_with_valid_keys(built):
+    assert set(built) == {
+        "dim_machine", "dim_date", "dim_tariff", "dim_state", "dim_time_slot", "fact_energy_15min",
+        "fact_state_energy", "fact_heatup", "fact_build_job", "fact_data_quality_daily",
+    }
+    date_keys = {r["date_key"] for r in built["dim_date"].select("date_key").collect()}
+    sks = {r["machine_sk"] for r in built["dim_machine"].select("machine_sk").collect()}
+    for name, df in built.items():
+        if name.startswith("fact_"):
+            assert df.where("machine_sk IS NULL").count() == 0, name
+            assert {r["machine_sk"] for r in df.select("machine_sk").distinct().collect()} <= sks, name
+            assert {r["date_key"] for r in df.select("date_key").distinct().collect()} <= date_keys, name
+
+
+def test_energy_follows_the_hall_move(built):
+    # LS05 moves from H1 to H2 on 2026-02-01; April and May are after the move, so all LS05 energy sits in H2.
+    halls = (
+        built["fact_energy_15min"].where("machine_id = 'LS05'")
+        .join(built["dim_machine"].select("machine_sk", "hall_id"), "machine_sk")
+        .select("hall_id").distinct().collect()
+    )
+    assert [r["hall_id"] for r in halls] == ["H2"]
+    assert built["dim_machine"].count() == 12  # 10 machines + LS05 hall move + LS07 meter swap

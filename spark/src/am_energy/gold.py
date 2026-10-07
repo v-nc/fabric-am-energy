@@ -6,7 +6,7 @@ through dropouts, so the energy over a gap is still known even when the readings
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 
 from pyspark.sql import Column, DataFrame, SparkSession, Window, functions as F
 
@@ -362,3 +362,59 @@ def attach_machine_sk(fact: DataFrame, dim_machine: DataFrame, ts_col: str) -> D
         & (F.col("valid_to").isNull() | (F.col(ts_col) < F.col("valid_to")))
     )
     return fact.join(F.broadcast(d), cond, "left").drop("_mid", "valid_from", "valid_to")
+
+
+STATES = [
+    ("off", "Off", 1),
+    ("idle", "Idle", 2),
+    ("heat_up", "Heat-up", 3),
+    ("building", "Building", 4),
+    ("cool_down", "Cool-down", 5),
+    ("unpacking", "Unpacking", 6),
+    ("unknown", "Unknown (gap)", 7),
+]
+
+
+def dim_state(spark: SparkSession) -> DataFrame:
+    return spark.createDataFrame(STATES, "state string, state_name string, sort_order int")
+
+
+def dim_time_slot(spark: SparkSession, cfg: PipelineConfig) -> DataFrame:
+    """96 local 15-minute slots of a day. The tariff band depends on the weekday too, so it lives on the fact."""
+    rows = [(s, f"{s // 4:02d}:{s % 4 * 15:02d}", s // 4, cfg.peak_from_hour <= s // 4 < cfg.peak_to_hour) for s in range(96)]
+    return spark.createDataFrame(rows, "slot_of_day int, slot_label string, hour int, is_peak_hours boolean")
+
+
+def _day_noon_utc(date_key_col: str) -> Column:
+    """Day-level facts take the dim_machine version valid at noon UTC of their day (versions change at midnight)."""
+    return F.to_timestamp(F.concat(F.col(date_key_col).cast("string"), F.lit(" 12")), "yyyyMMdd HH")
+
+
+def build_gold(
+    spark: SparkSession, bronze: DataFrame, silver: DataFrame, quarantine: DataFrame, snapshots: DataFrame,
+    cfg: PipelineConfig,
+) -> dict[str, DataFrame]:
+    """All gold tables from silver and the master data snapshots. Facts carry machine_sk, the dim_machine version
+    valid at the fact's time, so energy before a hall move stays with the old hall."""
+    dim_machine = scd2_rows(snapshots).cache()
+    intervals = state_intervals(silver, cfg).cache()
+    meters = dim_machine.select("meter_id", "machine_id").distinct()
+    span = silver.agg(F.min("ts_source").alias("lo"), F.max("ts_source").alias("hi")).first()
+    keyed = lambda fact, ts: attach_machine_sk(fact, dim_machine, ts)  # noqa: E731
+    day_keyed = lambda fact: (  # noqa: E731
+        keyed(fact.withColumn("_noon", _day_noon_utc("date_key")), "_noon").drop("_noon")
+    )
+    return {
+        "dim_machine": dim_machine,
+        "dim_date": dim_date(spark, span["lo"].date() - timedelta(days=1), span["hi"].date() + timedelta(days=1)),
+        "dim_tariff": dim_tariff(spark, cfg),
+        "dim_state": dim_state(spark),
+        "dim_time_slot": dim_time_slot(spark, cfg),
+        "fact_energy_15min": keyed(fact_energy_15min(silver, cfg), "bucket_start"),
+        "fact_state_energy": day_keyed(fact_state_energy(silver, cfg)),
+        "fact_heatup": keyed(fact_heatup(intervals, cfg), "start_ts"),
+        "fact_build_job": keyed(fact_build_job(intervals, cfg), "start_ts"),
+        "fact_data_quality_daily": day_keyed(
+            fact_data_quality_daily(bronze, silver, quarantine, cfg).join(meters, "meter_id", "left")
+        ),
+    }
