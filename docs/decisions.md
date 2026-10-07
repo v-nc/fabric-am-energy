@@ -73,6 +73,15 @@ exactly the new rows. `foreachBatch` checks each batch with neighbouring rows fr
 needs both neighbours) and writes with the insert-only MERGE (8). An MLV can't express MERGE or cross-batch context.
 The same code runs as a continuous stream by changing only the trigger.
 
+**23. Gold is rebuilt in full on each run (overwrite), not updated incrementally.** Late silver rows change
+energy deltas, state intervals and day totals around them, so an incremental gold would have to find and recompute
+every affected day. At 5M rows a full rebuild takes minutes and is trivially correct and idempotent. If runtime
+grows, the next step is recomputing only the local days touched by new silver rows (`replaceWhere` on `date_key`).
+
+**24. Facts carry the dim_machine version valid at the fact's time (SCD type 2).** 15-minute and event facts use
+their own timestamp; day-level facts use noon of the day, since versions change at midnight. Energy before LS05's
+hall move stays with hall 1, which row-level security by hall relies on.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all
@@ -98,4 +107,3 @@ in `config/assumptions.yaml`.
 
 - **Which gold steps become materialized lake views?** Silver is decided (22). For gold, MLVs suit declarative
   aggregates over silver; window-heavy logic (energy deltas, state intervals) stays in notebooks.
-- **Late data in gold:** recompute the local days touched by newly arrived silver rows, rather than all of gold.
