@@ -26,6 +26,7 @@ EVENT_COLUMNS: list[tuple[str, T.DataType]] = [
 METADATA_COLUMNS: list[tuple[str, T.DataType]] = [
     ("_source", T.StringType()),  # "history" or "eventstream"
     ("_source_file", T.StringType()),
+    ("_source_file_modified", T.TimestampType()),  # watermark for incremental file loads
     ("_enqueued_at", T.TimestampType()),  # Eventstream enqueue time; null for history
     ("_ingested_at", T.TimestampType()),
 ]
@@ -46,11 +47,14 @@ def to_bronze(df: DataFrame, source: str) -> DataFrame:
         else:
             cols.append(F.col(name).cast(dtype).alias(name))
     enqueued = F.to_timestamp(F.col("EventEnqueuedUtcTime")) if "EventEnqueuedUtcTime" in present else F.lit(None)
-    source_file = F.col("_metadata.file_path") if source == "history" else F.lit(None)
+    from_files = source == "history"
+    source_file = F.col("_metadata.file_path") if from_files else F.lit(None)
+    source_modified = F.col("_metadata.file_modification_time") if from_files else F.lit(None)
     return df.select(
         *cols,
         F.lit(source).alias("_source"),
         source_file.cast("string").alias("_source_file"),
+        source_modified.cast("timestamp").alias("_source_file_modified"),
         enqueued.cast("timestamp").alias("_enqueued_at"),
         F.current_timestamp().alias("_ingested_at"),
     )

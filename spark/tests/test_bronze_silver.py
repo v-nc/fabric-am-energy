@@ -22,7 +22,7 @@ def test_history_files_of_both_schema_versions_land_in_one_bronze_schema(spark):
     assert bronze.schema.simpleString() == BRONZE_SCHEMA.simpleString()
     by_version = {r["schema_version"]: r for r in bronze.groupBy("schema_version").agg(F.count("power_factor").alias("pf")).collect()}
     assert by_version[1]["pf"] == 0 and by_version[2]["pf"] > 0
-    assert bronze.where("_source_file IS NULL").count() == 0
+    assert bronze.where("_source_file IS NULL OR _source_file_modified IS NULL").count() == 0
 
 
 def test_eventstream_rows_with_string_timestamps_are_typed(spark):

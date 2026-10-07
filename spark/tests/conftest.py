@@ -68,6 +68,7 @@ def event(minutes: float, **kw) -> dict:
         "power_factor": None,
         "_source": "test",
         "_source_file": None,
+        "_source_file_modified": None,
         "_enqueued_at": None,
         "_ingested_at": ts(minutes) + timedelta(seconds=2),
     }
