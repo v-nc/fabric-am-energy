@@ -22,7 +22,7 @@ flowchart LR
 
   subgraph fabric["Fabric workspace am-energy-dev"]
     es["Eventstream<br/>custom endpoint"]
-    bronze[("bronze<br/>meter_events")]
+    bronze[("bronze<br/>stream + history<br/>meter_events")]
     silver[("silver<br/>clean, deduplicated")]
     gold[("gold<br/>star schema")]
     sm["Direct Lake<br/>semantic model"]
@@ -80,11 +80,56 @@ cd spark && uv sync && uv run pytest     # end-to-end tests use data/history fro
 - [Design decisions](docs/decisions.md): why the edge, the pipeline and the platform are built the way they are.
 - [Semantic model](model/README.md): star schema, DAX measures, row-level security and report pages.
 
-## Status
+## Progress
 
-Work in progress. Phase 0 (everything that runs without Fabric) is done. Fabric runs on a paid F4 capacity that is
-paused when idle (`scripts/capacity.sh`, see decision 19). Sections still to
-come: how to reproduce in Fabric, DP-700 skill mapping, limits, and what a production setup would add.
+Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progress, ⬜ not started.
+
+| Phase | What | State |
+|---|---|---|
+| 0 | Everything that runs without Fabric: simulator, gateway, history, transformations, model on paper | ✅ |
+| 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
+| 2 | Ingestion: live stream and history into bronze | ✅ |
+| 3 | Silver and gold, orchestration, table maintenance | 🔄 silver |
+| 4 | Direct Lake semantic model and Power BI report | ⬜ |
+| 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
+| 6 | Packaging: README, screenshots, demo video | ⬜ |
+
+### What has been built so far
+
+**Edge (local Docker).** An OPC UA server simulates 10 laser-sintering 3D printers in two halls, each with an IP
+energy meter. Each 3D printer cycles through idle, heat-up, building, cool-down and unpacking, and the meters inject
+realistic faults: dropouts, spikes, Bad status codes, a meter swap with a counter reset, over-long heat-ups. An edge
+gateway subscribes over OPC UA, numbers each meter's events, buffers them in SQLite and forwards them to Fabric; a
+simulated network outage makes it replay the backlog, which produces late, out-of-order and duplicate events on
+purpose. A generator writes 12 months of history (5.2M rows, Parquet) from the same model, with a ground-truth file
+of every injected fault.
+
+**Transformations (tested locally first).** Bronze → silver → gold logic lives in a Python package (`spark/`,
+24 tests on Spark 4.1 / Delta 4.2, the versions of Fabric Runtime 2.0). Tests compare the pipeline's output with the
+ground truth: every measurement survives exactly once, energy is conserved per meter, over-long heat-ups are found.
+
+**Fabric platform.** A paid F4 capacity in Sweden Central, paused whenever it isn't used (a new tenant gets no Fabric
+trial; see decision 19). Workspace `am-energy-dev` runs Spark Runtime 2.0 and is connected to this repository's
+`/fabric` folder through Git integration, so every Fabric item is versioned here as text. Workspace, Spark settings
+and Git connection are created by script (`scripts/`).
+
+**Ingestion.** One Lakehouse `lh_energy` with `bronze`, `silver` and `gold` schemas.
+- *Live:* gateway → Eventstream (custom endpoint, Event Hubs protocol) → `bronze.stream_meter_events`.
+- *History:* Parquet files uploaded to OneLake → notebook `nb_load_history_bronze` → `bronze.history_meter_events`,
+  as a full load and incrementally with a file-time watermark.
+
+**Silver (in progress).** Notebook `nb_silver` reads both bronze tables with Spark Structured Streaming
+(`availableNow`, so each run processes only new rows), checks data quality, sends rejected rows to
+`silver.quarantine` with a reason, and writes `silver.meter_readings` with an idempotent insert-only MERGE.
+
+**Next.** Gold star schema, a scheduled pipeline with table maintenance, then the semantic model and report.
+
+### How code reaches Fabric
+
+The transformation code is built into a Python wheel (`cd spark && uv build --wheel`) and attached to the Fabric
+Environment `env_am_energy` through Git (`fabric/env_am_energy.Environment/Libraries/CustomLibraries/`). After
+**Update** from Git and **Publish**, every notebook using that environment imports the same tested code
+(`from am_energy.silver import …`); notebooks only hold paths, parameters and orchestration.
 
 ## License
 
