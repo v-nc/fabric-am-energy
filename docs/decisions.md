@@ -67,6 +67,12 @@ announced; 2.0 is GA.
 timestamp, so energy before a hall move stays with the old hall, and row-level security by hall stays historically
 correct.
 
+**22. Silver is a notebook with Spark Structured Streaming (`availableNow`), not a materialized lake view.** Both
+bronze tables are read as streams; the checkpoint records which Delta versions were processed, so each run handles
+exactly the new rows. `foreachBatch` checks each batch with neighbouring rows from earlier batches (the spike rule
+needs both neighbours) and writes with the insert-only MERGE (8). An MLV can't express MERGE or cross-batch context.
+The same code runs as a continuous stream by changing only the trigger.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all
@@ -90,7 +96,6 @@ in `config/assumptions.yaml`.
 
 ## Open
 
-- **Which silver and gold steps become materialized lake views and which stay notebooks?** MLVs suit declarative,
-  incremental steps with `CHECK` constraints. Window-heavy logic (energy deltas, state intervals) and MERGE stay in
-  notebooks. Decide step by step in Phase 3.
+- **Which gold steps become materialized lake views?** Silver is decided (22). For gold, MLVs suit declarative
+  aggregates over silver; window-heavy logic (energy deltas, state intervals) stays in notebooks.
 - **Late data in gold:** recompute the local days touched by newly arrived silver rows, rather than all of gold.
