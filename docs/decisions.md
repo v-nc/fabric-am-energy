@@ -86,6 +86,16 @@ hall move stays with hall 1, which row-level security by hall relies on.
 really ended, so its measured length is an upper bound. Over the full year this removed the only 2 false alarms;
 those heat-ups show on the data quality page instead (`has_gap`).
 
+**26. One daily pipeline (`pl_daily`): silver → gold → maintenance, chained on success.** Gold never runs on
+half-processed silver. Each notebook activity retries once after 2 minutes (transient Spark errors), and the three
+share one Spark session through high concurrency for pipelines, which saves two session starts per run. The workspace
+ID is passed as `@pipeline().DataFactory`, so the pipeline runs unchanged in another workspace.
+
+**27. Table maintenance: OPTIMIZE (with V-Order) for append-heavy tables, VACUUM with 7 days' retention for all.**
+Eventstream commits a small file every minute or two; compaction brought `bronze.stream_meter_events` from about 400
+files to 1 in the current version. Gold is rewritten in full, so it only needs VACUUM. Seven days keeps time travel
+for a week and protects the silver stream, which must read bronze's appended files before they may be vacuumed.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all

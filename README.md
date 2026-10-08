@@ -89,8 +89,8 @@ Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progres
 | 0 | Everything that runs without Fabric: simulator, gateway, history, transformations, model on paper | ✅ |
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
-| 3 | Silver and gold, orchestration, table maintenance | 🔄 silver and gold done; pipeline next |
-| 4 | Direct Lake semantic model and Power BI report | ⬜ |
+| 3 | Silver and gold, orchestration, table maintenance | ✅ |
+| 4 | Direct Lake semantic model and Power BI report | 🔄 next |
 | 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
 | 6 | Packaging: README, screenshots, demo video | ⬜ |
 
@@ -134,7 +134,12 @@ injected overruns found, no false alarms. The 8 missed ones lasted 2.3–2.6 h: 
 heat-up, so they stay inside the normal range (up to 2.5 h) and below the 2.6 h alert threshold; no duration rule can
 tell them apart. That is a limit of the simulated data, kept visible rather than tuned away.
 
-**Next.** A scheduled pipeline with table maintenance (OPTIMIZE, VACUUM), then the semantic model and report.
+**Orchestration and maintenance.** Pipeline `pl_daily` runs silver → gold → maintenance (about 9 minutes), with
+retries and one shared Spark session, monitored in the Fabric Monitoring hub. Maintenance compacts the append-heavy
+tables with OPTIMIZE and V-Order (the live table went from about 400 small files to 1) and removes unreferenced files
+with VACUUM after 7 days.
+
+**Next.** The Direct Lake semantic model on gold, DAX measures, row-level security by hall, and the report.
 
 ### How code reaches Fabric
 
