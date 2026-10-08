@@ -1,0 +1,112 @@
+{
+  "properties": {
+    "activities": [
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "1e33d6d7-d9b2-8179-40bc-f57e9a7e621a",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "workspace_id": {
+              "value": {
+                "value": "@pipeline().DataFactory",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "lakehouse_id": {
+              "value": "9d7ad7e7-c954-4865-8034-3986cdd9db39",
+              "type": "string"
+            },
+            "reset": {
+              "value": false,
+              "type": "bool"
+            }
+          },
+          "sessionTag": "daily"
+        },
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 120,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "silver",
+        "dependsOn": []
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "a726a5d1-67c8-bc9d-4cd1-1ec252277d51",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "workspace_id": {
+              "value": "1a1fb8c0-f461-4025-ab89-a04bcfe30756",
+              "type": "string"
+            },
+            "lakehouse_id": {
+              "value": "9d7ad7e7-c954-4865-8034-3986cdd9db39",
+              "type": "string"
+            }
+          },
+          "sessionTag": "daily"
+        },
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 120,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "gold",
+        "dependsOn": [
+          {
+            "activity": "silver",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "TridentNotebook",
+        "typeProperties": {
+          "notebookId": "e0b4c9cd-90a3-adc4-4513-80ae53d42e88",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "parameters": {
+            "workspace_id": {
+              "value": "1a1fb8c0-f461-4025-ab89-a04bcfe30756",
+              "type": "string"
+            },
+            "lakehouse_id": {
+              "value": "9d7ad7e7-c954-4865-8034-3986cdd9db39",
+              "type": "string"
+            },
+            "retain_hours": {
+              "value": "168",
+              "type": "int"
+            }
+          },
+          "sessionTag": "daily"
+        },
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 120,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "maintenance",
+        "dependsOn": [
+          {
+            "activity": "gold",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
