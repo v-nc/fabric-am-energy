@@ -34,6 +34,23 @@ def test_counter_reset_and_gap_keep_their_energy(spark):
     assert d[63]["delta_kwh"] == pytest.approx(0.05)
 
 
+def test_a_counter_restarting_high_is_a_discontinuity_not_a_meter_swap(spark):
+    # Six days without data, then the counter is back at 21,000 kWh: no new meter starts there, and no 3D printer
+    # draws that much in six days. The interval's energy is unknown, not 21,000 kWh.
+    rows = [event(0, energy_kwh_total=61_000.0), event(1, energy_kwh_total=61_000.025),
+            event(6 * 24 * 60, energy_kwh_total=21_000.0), event(6 * 24 * 60 + 1, energy_kwh_total=21_000.025)]
+    d = sorted(gold.with_energy_deltas(silver_of(spark, rows), CFG).collect(), key=lambda r: r["ts_source"])
+    after_gap = d[2]
+    assert after_gap["counter_discontinuity"] and not after_gap["counter_reset"] and after_gap["delta_kwh"] is None
+    assert d[3]["delta_kwh"] == pytest.approx(0.025)
+
+
+def test_an_impossible_jump_up_is_a_discontinuity(spark):
+    rows = [event(0, energy_kwh_total=1_000.0), event(1, energy_kwh_total=11_000.0)]  # 10 MWh in one minute
+    d = sorted(gold.with_energy_deltas(silver_of(spark, rows), CFG).collect(), key=lambda r: r["ts_source"])
+    assert d[1]["counter_discontinuity"] and d[1]["delta_kwh"] is None
+
+
 def test_bucket_allocation_is_proportional_and_conserves_energy(spark):
     # 08:00 → 08:40 in one interval (a dropout): 40 minutes over buckets 08:00, 08:15, 08:30 → 15/15/10 minutes.
     rows = [event(0, energy_kwh_total=100.0), event(40, energy_kwh_total=104.0)]

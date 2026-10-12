@@ -19,6 +19,10 @@ class PipelineConfig:
     max_power_kw: float = 20.0
     spike_ratio: float = 3.0
     spike_min_kw: float = 2.0
+    # A replaced meter starts near zero; its first reading may show at most this much energy plus what the 3D printer
+    # could draw in the interval. A counter that drops to a higher value, or rises faster than max_power_kw allows,
+    # is a discontinuity: the energy of that interval is unknown, not booked.
+    new_meter_start_max_kwh: float = 5.0
     # Heat-up overrun rule: longer than baseline * factor (the 2019 alert).
     heatup_baseline_h: float = 2.0
     heatup_overrun_factor: float = 1.3

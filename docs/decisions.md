@@ -96,6 +96,13 @@ Eventstream commits a small file every minute or two; compaction brought `bronze
 files to 1 in the current version. Gold is rewritten in full, so it only needs VACUUM. Seven days keeps time travel
 for a week and protects the silver stream, which must read bronze's appended files before they may be vacuumed.
 
+**28. Counter jumps are checked for plausibility; an impossible one is a discontinuity, not energy.** A counter
+that goes down is a meter swap only if the new value is at most what a new meter (≤ 5 kWh) plus the 3D printer
+could show after the interval; a counter that rises faster than the maximum power allows is impossible too. Such an
+interval's energy is unknown (not booked) and counted on the data-quality page. Found when the live simulator
+restarted every meter at its initial value after the 12-month history: the old rule booked each restart as a meter
+swap and invented about 217,000 kWh in October.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all

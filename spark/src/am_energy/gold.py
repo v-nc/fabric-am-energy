@@ -21,20 +21,34 @@ BUCKET_S = 15 * 60
 def with_energy_deltas(silver: DataFrame, cfg: PipelineConfig) -> DataFrame:
     """Adds, per reading, the interval since the previous reading of the same meter and the energy drawn in it.
 
-    A counter that goes down means the meter was replaced: the new counter started near zero, so the energy since the
-    previous reading is the new counter value itself. A gap longer than gap_threshold_s keeps its energy but gets the
-    state "unknown", because nobody saw what the 3D printer did meanwhile.
+    A counter that goes down to a small value means the meter was replaced: the new counter started near zero, so the
+    energy since the previous reading is the new counter value itself. A jump no 3D printer could draw in the
+    interval (down to a large value, or up faster than max_power_kw) is a counter discontinuity: that interval's
+    energy is unknown (null) and flagged. A gap longer than gap_threshold_s keeps its energy but gets the state
+    "unknown", because nobody saw what the 3D printer did meanwhile.
     """
     w = Window.partitionBy("meter_id").orderBy("ts_source")
     prev_energy = F.lag("energy_kwh_total").over(w)
     raw = F.col("energy_kwh_total") - prev_energy
     gap_s = F.col("ts_source").cast("double") - F.col("prev_ts").cast("double")
+    max_kwh = cfg.max_power_kw * F.col("interval_s") / 3600.0
+    went_down = F.coalesce(F.col("raw_delta") < 0, F.lit(False))
+    plausible_swap = went_down & (F.col("energy_kwh_total") <= max_kwh + cfg.new_meter_start_max_kwh)
+    discontinuity = (went_down & ~plausible_swap) | F.coalesce(F.col("raw_delta") > max_kwh, F.lit(False))
     return (
         silver.withColumn("prev_ts", F.lag("ts_source").over(w))
         .withColumn("prev_state", F.lag("state").over(w))
-        .withColumn("counter_reset", F.coalesce(raw < 0, F.lit(False)))
-        .withColumn("delta_kwh", F.when(raw < 0, F.col("energy_kwh_total")).otherwise(raw))
+        .withColumn("raw_delta", raw)
         .withColumn("interval_s", gap_s)
+        .withColumn("counter_reset", plausible_swap)
+        .withColumn("counter_discontinuity", discontinuity)
+        .withColumn(
+            "delta_kwh",
+            F.when(F.col("counter_discontinuity"), F.lit(None).cast("double"))
+            .when(F.col("counter_reset"), F.col("energy_kwh_total"))
+            .otherwise(F.col("raw_delta")),
+        )
+        .drop("raw_delta")
         .withColumn("is_gap", F.coalesce(gap_s > cfg.gap_threshold_s, F.lit(False)))
         .withColumn("interval_state", F.when(F.col("is_gap"), F.lit("unknown")).otherwise(F.col("prev_state")))
     )
@@ -248,6 +262,7 @@ def fact_data_quality_daily(bronze: DataFrame, silver: DataFrame, quarantine: Da
         F.sum(F.col("is_gap").cast("int")).alias("gaps"),
         (F.sum(F.when(F.col("is_gap"), F.col("interval_s"))) / 60.0).alias("gap_minutes"),
         F.sum(F.col("counter_reset").cast("int")).alias("counter_resets"),
+        F.sum(F.col("counter_discontinuity").cast("int")).alias("counter_discontinuities"),
         F.countDistinct(F.date_trunc("minute", "ts_source")).alias("minutes_covered"),
     )
     return (
