@@ -140,5 +140,11 @@ in `config/assumptions.yaml`.
 
 ## Open
 
+- **RLS by hall is defined but not yet enforced end to end.** Roles `Hall H1` and `Hall H2` filter `dim_machine`
+  and reach every fact through `machine_sk`. The model still reads OneLake with SSO (the default), so report users
+  would need Lakehouse access, which bypasses model RLS, and "Test as role" is unavailable. Enforcing it means binding
+  the model to a fixed-identity cloud connection with SSO off (or using OneLake security). Skipped for now: the
+  portfolio has a single user.
+
 - **Which gold steps become materialized lake views?** Silver is decided (22). For gold, MLVs suit declarative
   aggregates over silver; window-heavy logic (energy deltas, state intervals) stays in notebooks.
