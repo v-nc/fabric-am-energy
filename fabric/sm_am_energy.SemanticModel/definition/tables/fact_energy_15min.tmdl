@@ -2,6 +2,34 @@ table fact_energy_15min
 	lineageTag: 7dbee05c-8eba-4c10-8ef6-09eeace8e843
 	sourceLineageTag: [gold].[fact_energy_15min]
 
+	measure Energy_kWh = SUM ( fact_energy_15min[kwh] )
+		lineageTag: fcdc6a99-3351-445e-add0-8738b3c3813a
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Energy_cost = SUM ( fact_energy_15min[cost] )
+		lineageTag: 05ec2c22-1185-4eb3-b669-f33c12a2ec73
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Avg_price_per_kWh = DIVIDE ( [Energy_cost], [Energy_kWh] )
+		lineageTag: 3e8b34ef-b3f4-4592-870f-8d8a78195b07
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Peak_share = DIVIDE ( CALCULATE ( [Energy_kWh], dim_tariff[tariff_band] = "peak" ), [Energy_kWh] )
+		lineageTag: ac30fb1b-befa-4dea-9dc8-11eb53ec7b07
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column machine_id
 		dataType: string
 		isHidden
