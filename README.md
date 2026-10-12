@@ -70,6 +70,10 @@ What the workspace looks like in Fabric's lineage view:
 
 ![Lineage view of the workspace](docs/screenshots/10-lineage.png)
 
+The daily pipeline: silver, then gold, then table maintenance and the semantic model reframe in parallel.
+
+![Daily pipeline](docs/screenshots/11-pipeline.png)
+
 ## What it demonstrates
 
 **Streaming and ingestion**
