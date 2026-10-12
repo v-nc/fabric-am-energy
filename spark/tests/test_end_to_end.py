@@ -132,3 +132,14 @@ def test_energy_follows_the_hall_move(built):
     )
     assert [r["hall_id"] for r in halls] == ["H2"]
     assert built["dim_machine"].count() == 12  # 10 machines + LS05 hall move + LS07 meter swap
+
+
+def test_coverage_grid_expects_each_machine_once_per_day_in_the_right_hall(built):
+    dq = built["fact_data_quality_daily"]
+    days = dq.select("date_key").distinct().count()
+    per_machine = {r["machine_id"]: r["n"] for r in dq.groupBy("machine_id").agg(F.count("*").alias("n")).collect()}
+    assert set(per_machine.values()) == {days}  # every machine once per day, even LS05 with two versions
+    assert dq.groupBy("machine_id", "date_key").count().where("count > 1").count() == 0
+    ls05 = (dq.where("machine_id = 'LS05'").join(built["dim_machine"].select("machine_sk", "hall_id"), "machine_sk")
+            .groupBy("hall_id").agg((F.sum("minutes_covered") / F.sum("expected_minutes")).alias("c")).collect())
+    assert all(r["c"] > 0.9 for r in ls05)  # complete in each hall while it was there

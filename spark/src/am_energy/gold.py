@@ -414,7 +414,6 @@ def build_gold(
     valid at the fact's time, so energy before a hall move stays with the old hall."""
     dim_machine = scd2_rows(snapshots).cache()
     intervals = state_intervals(silver, cfg).cache()
-    meters = dim_machine.select("meter_id", "machine_id").distinct()
     span = silver.agg(F.min("ts_source").alias("lo"), F.max("ts_source").alias("hi")).first()
     keyed = lambda fact, ts: attach_machine_sk(fact, dim_machine, ts)  # noqa: E731
     day_keyed = lambda fact: (  # noqa: E731
@@ -430,7 +429,37 @@ def build_gold(
         "fact_state_energy": day_keyed(fact_state_energy(silver, cfg)),
         "fact_heatup": keyed(fact_heatup(intervals, cfg), "start_ts"),
         "fact_build_job": keyed(fact_build_job(intervals, cfg), "start_ts"),
-        "fact_data_quality_daily": day_keyed(
-            fact_data_quality_daily(bronze, silver, quarantine, cfg).join(meters, "meter_id", "left")
+        "fact_data_quality_daily": coverage_grid(
+            fact_data_quality_daily(bronze, silver, quarantine, cfg), dim_machine, silver, cfg
         ),
     }
+
+
+def coverage_grid(dq: DataFrame, dim_machine: DataFrame, silver: DataFrame, cfg: PipelineConfig) -> DataFrame:
+    """One row per machine version and local day over the whole data period, including days without any data, with
+    expected_minutes = 1440. Completeness is then SUM(minutes_covered) / SUM(expected_minutes): each day counts for
+    the version valid at its noon, so a machine that moved halls is expected in each hall only while it was there,
+    and a silent meter shows up as 0 % instead of disappearing."""
+    bounds = silver.agg(
+        F.min(date_key(local(F.col("ts_source"), cfg))).alias("lo"),
+        F.max(date_key(local(F.col("ts_source"), cfg))).alias("hi"),
+    ).first()
+    to_date = lambda k: F.to_date(F.col(k).cast("string"), "yyyyMMdd")  # noqa: E731
+    days = (
+        dq.sparkSession.createDataFrame([(bounds["lo"], bounds["hi"])], "lo int, hi int")
+        .select(F.explode(F.sequence(to_date("lo"), to_date("hi"))).alias("d"))
+        .select(F.date_format("d", "yyyyMMdd").cast("int").alias("date_key"))
+    )
+    noon = _day_noon_utc("date_key")
+    grid = (
+        dim_machine.select("machine_sk", "machine_id", "meter_id", "valid_from", "valid_to")
+        .crossJoin(days)
+        .where((noon >= F.col("valid_from")) & (F.col("valid_to").isNull() | (noon < F.col("valid_to"))))
+        .select("machine_sk", "machine_id", "meter_id", "date_key", F.lit(1440).alias("expected_minutes"))
+    )
+    metrics = [c for c in dq.columns if c not in ("meter_id", "date_key", "completeness")]
+    return (
+        grid.join(dq, ["meter_id", "date_key"], "left")
+        .fillna(0, subset=metrics)
+        .withColumn("completeness", F.col("minutes_covered") / F.col("expected_minutes"))
+    )
