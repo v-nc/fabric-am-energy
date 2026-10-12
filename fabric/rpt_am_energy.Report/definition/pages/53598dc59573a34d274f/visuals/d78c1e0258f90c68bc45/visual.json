@@ -58,7 +58,8 @@
               },
               "queryRef": "dim_date.date",
               "nativeQueryRef": "date",
-              "displayName": "Build start"
+              "displayName": "Build start",
+              "format": "yyyy-MM-dd"
             },
             {
               "field": {

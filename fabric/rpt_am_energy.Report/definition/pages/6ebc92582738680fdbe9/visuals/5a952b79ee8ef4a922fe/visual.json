@@ -30,7 +30,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Overrun = heat-up longer than 2.6 h (1.3 × the 2.0 h baseline). A heat-up whose end falls in a data gap is not judged.",
+                    "value": "Overrun = heat-up longer than 2.6 h (1.3 × the 2.0 h baseline). Heat-ups that span a data gap can't be judged and are excluded.",
                     "textStyle": {
                       "fontSize": "11pt",
                       "color": "#605E5C"

@@ -35,21 +35,6 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_date"
-                    }
-                  },
-                  "Property": "date"
-                }
-              },
-              "queryRef": "dim_date.date",
-              "nativeQueryRef": "date",
-              "displayName": "Day"
-            },
-            {
-              "field": {
-                "Column": {
-                  "Expression": {
-                    "SourceRef": {
                       "Entity": "fact_heatup"
                     }
                   },
@@ -58,7 +43,8 @@
               },
               "queryRef": "fact_heatup.start_ts",
               "nativeQueryRef": "start_ts",
-              "displayName": "Start (UTC)"
+              "displayName": "Start (UTC)",
+              "format": "yyyy-MM-dd HH:mm"
             },
             {
               "field": {

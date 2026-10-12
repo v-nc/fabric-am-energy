@@ -30,7 +30,7 @@
               {
                 "textRuns": [
                   {
-                    "value": "Simulated park of 10 laser-sintering 3D printers. Job energy includes the heat-up before and the cool-down after the build.",
+                    "value": "Simulated park of 10 laser-sintering 3D printers. Job energy includes the heat-up before and the cool-down after the build. Jobs that span a data gap are excluded.",
                     "textStyle": {
                       "fontSize": "11pt",
                       "color": "#605E5C"
