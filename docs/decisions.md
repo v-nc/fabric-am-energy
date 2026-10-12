@@ -117,6 +117,15 @@ only while it was there, and a silent meter shows up as a 0 % row instead of dis
 version (days in filter × machines) put hall 1 at 84 % and hall 2 at 92 % with identical fault rates: LS05 was
 expected in both halls for the whole year.
 
+**31. Report pages can be written as code (PBIR JSON) and deployed through Git.** The report is stored in the
+PBIR format: one `visual.json` per visual, with a published JSON schema. Pages 3 to 5 were generated as JSON,
+validated against Microsoft's schemas before committing, and pulled into the workspace with Update from Git. Pages 1
+and 2 were built by hand in the browser; both kinds live side by side and stay editable in either place.
+
+**32. Jobs and heat-ups that span a data gap are filtered out at page level, not deleted.** Their length is an upper
+bound, so averages and the scatter of hours vs energy would be distorted (94 of 1,716 jobs, 6 of 1,719 heat-ups).
+They stay in gold with `has_gap`, and the filter is visible in the report's filter pane.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all

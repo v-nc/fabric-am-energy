@@ -90,8 +90,8 @@ Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progres
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
-| 4 | Direct Lake semantic model and Power BI report | 🔄 model and measures done; RLS and report next |
-| 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
+| 4 | Direct Lake semantic model and Power BI report | ✅ (RLS enforcement open) |
+| 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | 🔄 next |
 | 6 | Packaging: README, screenshots, demo video | ⬜ |
 
 ### What has been built so far
@@ -154,7 +154,14 @@ what arrived by what was expected, taken from a coverage grid in gold (one row p
 days without data): about 97.7 % in both halls over the year, after a first DAX version had expected the 3D printer
 that moved halls in both halls all year.
 
-**Next.** Row-level security by hall, and the report.
+**Report.** `rpt_am_energy` has five pages: park overview, machine drill-down, build jobs, heat-up anomalies (the
+2019 alert: 100 overruns, 5.8 % of judged heat-ups) and data quality (a completeness heat map by 3D printer and
+month). The first two were built by hand in the browser; the other three were written as PBIR JSON, validated
+against Microsoft's schemas and deployed from Git. Row-level security roles by hall are defined; enforcing them needs
+a fixed-identity connection (see the open points in the design decisions).
+
+**Next.** Stretch goals: an Eventhouse with KQL and a real-time dashboard, an Activator alert on heat-up overruns,
+CI/CD; then screenshots and a demo video.
 
 ### How code reaches Fabric
 
