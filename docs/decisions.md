@@ -110,6 +110,13 @@ the middle would mix new facts with old dimensions. `pl_daily` reframes with a S
 gold succeeds. Its connection uses OAuth with my user, fine for a portfolio; production would use a service principal
 or the workspace identity.
 
+**30. The data-quality fact is a coverage grid: one row per machine version and day, with expected_minutes.**
+Completeness divides what arrived by what was expected, and the expectation lives in the fact rather than in DAX.
+A day belongs to the dim_machine version valid at its noon, so a 3D printer that moved halls is expected in each hall
+only while it was there, and a silent meter shows up as a 0 % row instead of disappearing. Found when the first DAX
+version (days in filter × machines) put hall 1 at 84 % and hall 2 at 92 % with identical fault rates: LS05 was
+expected in both halls for the whole year.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all
