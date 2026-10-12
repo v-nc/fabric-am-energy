@@ -1,0 +1,7 @@
+role 'Hall H1'
+	modelPermission: read
+
+	tablePermission dim_machine = [hall_id] == "H1"
+
+	annotation PBI_Id = 9529e705d58a42eda9925ccbf9656d83
+

@@ -1,0 +1,107 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "63f5cebffbf4ebf5501f",
+  "position": {
+    "x": 10.363207016754751,
+    "y": 666.69965141122225,
+    "z": 4,
+    "height": 395.52906780613966,
+    "width": 996.59507477791522,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_machine"
+                    }
+                  },
+                  "Property": "machine_id"
+                }
+              },
+              "queryRef": "dim_machine.machine_id",
+              "nativeQueryRef": "machine_id",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_kWh"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_kWh",
+              "nativeQueryRef": "Energy_kWh"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_energy_15min"
+                  }
+                },
+                "Property": "Energy_kWh"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "5f90b158a516d4e06acb",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_machine"
+              }
+            },
+            "Property": "machine_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "65704490e2c435364b73",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_energy_15min"
+              }
+            },
+            "Property": "Energy_kWh"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

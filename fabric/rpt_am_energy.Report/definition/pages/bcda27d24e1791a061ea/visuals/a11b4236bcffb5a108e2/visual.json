@@ -1,0 +1,139 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "a11b4236bcffb5a108e2",
+  "position": {
+    "x": 1006.9582817946699,
+    "y": 474.98032160125939,
+    "z": 5,
+    "height": 604.52040931069382,
+    "width": 913.68941864387716,
+    "tabOrder": 5
+  },
+  "visual": {
+    "visualType": "hundredPercentStackedBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_machine"
+                    }
+                  },
+                  "Property": "machine_id"
+                }
+              },
+              "queryRef": "dim_machine.machine_id",
+              "nativeQueryRef": "machine_id",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_state"
+                    }
+                  },
+                  "Property": "state_name"
+                }
+              },
+              "queryRef": "dim_state.state_name",
+              "nativeQueryRef": "state_name"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_state_energy"
+                    }
+                  },
+                  "Property": "State_hours"
+                }
+              },
+              "queryRef": "fact_state_energy.State_hours",
+              "nativeQueryRef": "State_hours"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_state_energy"
+                  }
+                },
+                "Property": "State_hours"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "4a7cc4da6fd3415e0f4b",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_machine"
+              }
+            },
+            "Property": "machine_id"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "e8a1b17e609511e8386b",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_state_energy"
+              }
+            },
+            "Property": "State_hours"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "662e5c2f502258d8cf02",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_state"
+              }
+            },
+            "Property": "state_name"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

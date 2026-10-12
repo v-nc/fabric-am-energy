@@ -23,3 +23,6 @@ ref table fact_energy_15min
 ref table fact_heatup
 ref table fact_state_energy
 
+ref role 'Hall H1'
+ref role 'Hall H2'
+

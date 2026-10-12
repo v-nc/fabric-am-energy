@@ -5,11 +5,14 @@ table dim_date
 
 	column date_key
 		dataType: int64
+		isHidden
 		formatString: 0
 		lineageTag: 7e747133-9396-41ec-8b07-891962108849
 		sourceLineageTag: date_key
 		summarizeBy: none
 		sourceColumn: date_key
+
+		changedProperty = IsHidden
 
 		annotation SummarizationSetBy = Automatic
 
@@ -60,6 +63,9 @@ table dim_date
 		sourceLineageTag: month_name
 		summarizeBy: none
 		sourceColumn: month_name
+		sortByColumn: month
+
+		changedProperty = SortByColumn
 
 		annotation SummarizationSetBy = Automatic
 
@@ -98,6 +104,9 @@ table dim_date
 		sourceLineageTag: weekday_name
 		summarizeBy: none
 		sourceColumn: weekday_name
+		sortByColumn: iso_weekday
+
+		changedProperty = SortByColumn
 
 		annotation SummarizationSetBy = Automatic
 

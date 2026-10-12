@@ -67,6 +67,23 @@ table fact_data_quality_daily
 
 		changedProperty = Name
 
+	measure DQ_completeness = ```
+			
+			DIVIDE (
+			    SUM ( fact_data_quality_daily[minutes_covered] ),
+			    SUM ( fact_data_quality_daily[expected_minutes] )
+			)
+			
+			```
+		displayFolder: Data quality
+		lineageTag: 6f655328-9dff-4383-83fb-68b4ffd2d542
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column meter_id
 		dataType: string
 		lineageTag: 1da2f301-3e10-434b-918b-09309bcae4d7
@@ -290,6 +307,16 @@ table fact_data_quality_daily
 		sourceColumn: counter_discontinuities
 
 		changedProperty = DisplayFolder
+
+		annotation SummarizationSetBy = Automatic
+
+	column expected_minutes
+		dataType: int64
+		formatString: 0
+		lineageTag: f0b1844f-fca3-42af-8b2d-5c1acf7bd9e1
+		sourceLineageTag: expected_minutes
+		summarizeBy: sum
+		sourceColumn: expected_minutes
 
 		annotation SummarizationSetBy = Automatic
 

@@ -1,0 +1,139 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "d0607281c79a261060d1",
+  "position": {
+    "x": 10.363207016754751,
+    "y": 474.98032160125939,
+    "z": 3,
+    "height": 191.71932980996289,
+    "width": 996.59507477791522,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "year_month"
+                }
+              },
+              "queryRef": "dim_date.year_month",
+              "nativeQueryRef": "year_month",
+              "active": true
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_machine"
+                    }
+                  },
+                  "Property": "hall_id"
+                }
+              },
+              "queryRef": "dim_machine.hall_id",
+              "nativeQueryRef": "hall_id"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_kWh"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_kWh",
+              "nativeQueryRef": "Energy_kWh"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_energy_15min"
+                  }
+                },
+                "Property": "Energy_kWh"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "55d1c25f13f65d5098a8",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_date"
+              }
+            },
+            "Property": "year_month"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "5e8327e2f94f55d3d732",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_energy_15min"
+              }
+            },
+            "Property": "Energy_kWh"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "64588fa43ce92ddeddd4",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "dim_machine"
+              }
+            },
+            "Property": "hall_id"
+          }
+        },
+        "type": "Categorical"
+      }
+    ]
+  }
+}

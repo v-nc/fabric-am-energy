@@ -4,16 +4,18 @@ table dim_machine
 
 	column machine_sk
 		dataType: string
+		isHidden
 		lineageTag: 1dd75a5a-a953-4206-a283-50abcccc243b
 		sourceLineageTag: machine_sk
 		summarizeBy: none
 		sourceColumn: machine_sk
 
+		changedProperty = IsHidden
+
 		annotation SummarizationSetBy = Automatic
 
 	column machine_id
 		dataType: string
-		isHidden
 		lineageTag: 8d834693-2d1c-460a-991b-ad7cf0ced90e
 		sourceLineageTag: machine_id
 		summarizeBy: none
@@ -52,31 +54,40 @@ table dim_machine
 
 	column valid_from
 		dataType: dateTime
+		isHidden
 		formatString: General Date
 		lineageTag: bf7b19b6-af8f-4aaf-a7eb-53fb63e6c0fe
 		sourceLineageTag: valid_from
 		summarizeBy: none
 		sourceColumn: valid_from
 
+		changedProperty = IsHidden
+
 		annotation SummarizationSetBy = Automatic
 
 	column valid_to
 		dataType: dateTime
+		isHidden
 		formatString: General Date
 		lineageTag: df79dc6b-92c5-452a-bb3d-471c8791b411
 		sourceLineageTag: valid_to
 		summarizeBy: none
 		sourceColumn: valid_to
 
+		changedProperty = IsHidden
+
 		annotation SummarizationSetBy = Automatic
 
 	column is_current
 		dataType: boolean
+		isHidden
 		formatString: """TRUE"";""TRUE"";""FALSE"""
 		lineageTag: 8425ba99-ee9d-4a12-bf06-b9168bfc1422
 		sourceLineageTag: is_current
 		summarizeBy: none
 		sourceColumn: is_current
+
+		changedProperty = IsHidden
 
 		annotation SummarizationSetBy = Automatic
 

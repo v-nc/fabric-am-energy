@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "rpt_am_energy"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "d65cb0c6-5d36-81ed-4bab-3f862c86739c"
+  }
+}

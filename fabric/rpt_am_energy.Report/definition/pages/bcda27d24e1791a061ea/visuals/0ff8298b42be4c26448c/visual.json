@@ -1,0 +1,224 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "0ff8298b42be4c26448c",
+  "position": {
+    "x": 10.363207016754751,
+    "y": 290.169796469133,
+    "z": 2,
+    "height": 150.26650174294389,
+    "width": 1910.2844934217924,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_kWh"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_kWh",
+              "nativeQueryRef": "Energy_kWh"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_cost"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_cost",
+              "nativeQueryRef": "Energy_cost"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Peak_share"
+                }
+              },
+              "queryRef": "fact_energy_15min.Peak_share",
+              "nativeQueryRef": "Peak_share"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "fact_energy_15min"
+                        }
+                      },
+                      "Property": "avg_power_kw"
+                    }
+                  },
+                  "Function": 0
+                }
+              },
+              "queryRef": "Sum(fact_energy_15min.avg_power_kw)",
+              "nativeQueryRef": "Sum of avg_power_kw"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_completeness"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_completeness",
+              "nativeQueryRef": "DQ_completeness"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_up_overruns"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_up_overruns",
+              "nativeQueryRef": "Heat_up_overruns"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_energy_15min"
+                  }
+                },
+                "Property": "Energy_kWh"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "6e9acfff8df1f1758d7c",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_energy_15min"
+              }
+            },
+            "Property": "Energy_kWh"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "4269b2bf4b240534b988",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_energy_15min"
+              }
+            },
+            "Property": "Energy_cost"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "2e3a826b92535c996353",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_energy_15min"
+              }
+            },
+            "Property": "Peak_share"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "6e95e5abc2bbaf145d36",
+        "field": {
+          "Aggregation": {
+            "Expression": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_energy_15min"
+                  }
+                },
+                "Property": "avg_power_kw"
+              }
+            },
+            "Function": 0
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "cbd72d0aadab1e66ffcc",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_data_quality_daily"
+              }
+            },
+            "Property": "DQ_completeness"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "55c9619538b90e6abe51",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_heatup"
+              }
+            },
+            "Property": "Heat_up_overruns"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}
