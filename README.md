@@ -1,41 +1,204 @@
 # fabric-am-energy
 
-Energy monitoring for a park of laser-sintering 3D printers, built end to end in Microsoft Fabric.
+Energy monitoring for a park of laser-sintering 3D printers, built end to end in Microsoft Fabric: OPC UA at the
+edge, streaming ingestion, a bronze/silver/gold Lakehouse, a Direct Lake semantic model and a Power BI report, all
+versioned in this repository.
 
 > **What this is.** A personal portfolio project on **simulated data**, inspired by an energy-monitoring project I
-> built in 2019 (OPC UA aggregation client, InfluxDB, Grafana, alerts on over-long heat-up phases). No real machine,
-> customer or company data is used. Every power and timing parameter is an assumption, listed in
-> [`config/assumptions.yaml`](config/assumptions.yaml).
+> built in 2019 (an OPC UA aggregation client, InfluxDB and Grafana, with alerts on 3D printers left in an over-long
+> heat-up). No real machine, customer or company data is used. Every power and timing parameter is an assumption,
+> listed in [`config/assumptions.yaml`](config/assumptions.yaml).
 >
 > Microsoft Fabric DP-700 (Fabric Data Engineer Associate): in preparation.
+
+![Park overview page of the report](docs/screenshots/01-park-overview.png)
+
+## At a glance
+
+- **Edge:** an OPC UA server simulates 10 3D printers in two halls with their energy meters. A TypeScript gateway
+  subscribes, buffers in SQLite (store-and-forward) and streams to Fabric over the Event Hubs protocol.
+- **Fabric:** Eventstream → Lakehouse (bronze, silver, gold) → Direct Lake semantic model → five-page Power BI report,
+  orchestrated by a daily pipeline with table maintenance, on a paid F4 capacity that is paused when idle.
+- **Engineering:** transformations are a tested Python package (64 automated tests in total) deployed to Fabric as a
+  wheel; every Fabric item, including the semantic model and the report, is stored here as text through Git
+  integration; 32 [design decisions](docs/decisions.md) are written down.
+- **Checked against the truth:** the simulator injects faults and records them in a ground-truth file. The pipeline
+  removed exactly the 10,522 injected duplicates, found 100 of 108 injected heat-up overruns with no false alarm, and
+  reports 97.7 % data completeness.
+
+## Report
+
+| | |
+|---|---|
+| [![Machine drill-down](docs/screenshots/02-machine-drill-down.png)](docs/screenshots/02-machine-drill-down.png) **Machine drill-down:** one 3D printer at a time | [![Build jobs](docs/screenshots/03-build-jobs.png)](docs/screenshots/03-build-jobs.png) **Build jobs:** energy per job and per build hour |
+| [![Heat-up anomalies](docs/screenshots/04-heat-up-anomalies.png)](docs/screenshots/04-heat-up-anomalies.png) **Heat-up anomalies:** the 2019 alert, recomputed over a year | [![Data quality](docs/screenshots/05-data-quality.png)](docs/screenshots/05-data-quality.png) **Data quality:** what arrived versus what was expected |
+
+All five pages as a PDF: [docs/rpt_am_energy.pdf](docs/rpt_am_energy.pdf). A one-page summary of the project:
+[docs/portfolio-summary.pdf](docs/portfolio-summary.pdf).
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  subgraph local["Local Docker"]
-    sim["OPC UA server<br/>10 simulated 3D printers<br/>+ IP energy meters"]
+  subgraph edge["Edge (local Docker)"]
+    sim["OPC UA server<br/>10 simulated 3D printers<br/>+ energy meters"]
     gw["Edge gateway (Node/TS)<br/>store-and-forward, batching"]
-    hist["History generator<br/>12 months, Parquet"]
+    hist["History generator<br/>12 months, 5.2M rows"]
     sim -- "OPC UA subscriptions" --> gw
   end
 
   subgraph fabric["Fabric workspace am-energy-dev"]
     es["Eventstream<br/>custom endpoint"]
-    bronze[("bronze<br/>stream + history<br/>meter_events")]
-    silver[("silver<br/>clean, deduplicated")]
+    files["Lakehouse Files<br/>landing/history"]
+    bronze[("bronze<br/>stream + history")]
+    silver[("silver<br/>readings + quarantine")]
     gold[("gold<br/>star schema")]
     sm["Direct Lake<br/>semantic model"]
     rpt["Power BI report"]
-    eh["Eventhouse / KQL<br/>Activator (stretch)"]
-    es --> bronze --> silver --> gold --> sm --> rpt
-    es -.-> eh
+    pl["pipeline pl_daily<br/>silver → gold → maintenance<br/>→ model reframe"]
+    es --> bronze
+    files --> bronze --> silver --> gold --> sm --> rpt
+    pl -.-> silver
   end
 
-  gw -- "JSON events<br/>(Event Hubs protocol)" --> es
-  hist -- "OneLake Files<br/>backfill" --> bronze
-  fabric <-. "Git integration<br/>/fabric" .-> repo["GitHub repo"]
+  gw -- "JSON events<br/>Event Hubs protocol" --> es
+  hist -- "upload" --> files
+  fabric <-. "Git integration<br/>/fabric" .-> repo["this repository"]
 ```
+
+What the workspace looks like in Fabric's lineage view:
+
+![Lineage view of the workspace](docs/screenshots/10-lineage.png)
+
+## What it demonstrates
+
+**Streaming and ingestion**
+- Eventstream custom endpoint fed by a gateway speaking the Event Hubs protocol (AMQP), with the meter as partition key
+  so each meter's events stay in order.
+- At-least-once delivery handled downstream: per-meter sequence numbers at the edge, deduplication on the natural key
+  (meter, measurement time) in silver.
+- Network outages simulated at the gateway: the backlog is replayed after live data, so events arrive late and out of
+  order on purpose.
+- History backfill from Parquet files with two schema versions (`mergeSchema`), as a full load and incrementally with a
+  file-time watermark.
+
+**Lakehouse and transformations**
+- One Lakehouse with `bronze`, `silver` and `gold` schemas; bronze keeps data as received.
+- Silver with Spark Structured Streaming (`availableNow` plus a checkpoint, so each run processes only new rows),
+  quality rules with a quarantine table and a reason per rejected row, and an idempotent insert-only MERGE.
+- Gold star schema rebuilt in full on each run: energy from the meters' kWh counters (not integrated power),
+  proportional allocation to 15-minute buckets, a time-of-use tariff in local time across daylight-saving changes,
+  machine states, build jobs and heat-ups, and an SCD type 2 machine dimension (a hall move and a meter swap).
+- Plausibility rules for meter counters: a meter swap restarts near zero; a jump no 3D printer could draw is a
+  discontinuity, not energy.
+
+**Semantic model and report**
+- Direct Lake on OneLake model over gold: 13 many-to-one relationships, a marked date table, measures with display
+  folders and formats; columns for slicing, measures for numbers.
+- Data completeness computed against an expectation stored in a coverage grid (one row per machine version and day),
+  so it stays correct when a 3D printer changes halls.
+- Five report pages in one consistent layout. Two were first built by hand in the browser; all five are stored as
+  PBIR JSON, validated against Microsoft's schemas and deployed from Git.
+- Row-level security roles by hall (enforcement is an open point, see below).
+
+**Platform and operations**
+- Paid F4 capacity created and paused by script, with a cost budget; Spark pool sized for F4 (one node per session)
+  after hitting the capacity's Spark limit.
+- Environment with the project's own wheel, Spark Runtime 2.0.
+- Pipeline with retries, a shared high-concurrency Spark session, the workspace id passed as a parameter, a daily
+  schedule, and an explicit reframe of the semantic model at the end.
+- Table maintenance: OPTIMIZE with V-Order for append-heavy tables (the live table went from about 400 small files to
+  1) and VACUUM with 7 days' retention.
+- Workspace, Spark settings, GitHub connection and Git link created through the Fabric REST API.
+
+## Results, checked against the ground truth
+
+The history generator records every fault it injects in `data/history/ground_truth.json`. Local end-to-end tests and
+the Fabric run compare the pipeline's output with it.
+
+| Injected into the data | What the pipeline does | Result |
+|---|---|---|
+| 10,522 duplicate events | Deduplicates on (meter, measurement time), first arrival wins | Exactly 10,522 removed; every measurement kept once |
+| Gateway outages (late, out-of-order replay) | Flags events that arrive more than 5 minutes late | 3,715 late events flagged, all kept |
+| Bad OPC status, implausible power, spikes | Quarantine with a reason | 7,652 readings rejected, by reason on the quality page |
+| Meter dropouts | State "unknown"; energy still known from the kWh counter | Energy conserved per meter (local test) |
+| Meter swap with a counter reset | New counter value counted from zero | Swap detected once, at the right time |
+| Live simulator restarting every counter | Treated as a discontinuity, energy unknown | 10 discontinuities instead of 217,000 kWh of phantom energy |
+| 108 over-long heat-ups | Overrun = longer than 2.6 h; heat-ups hidden by a gap are not judged | 100 found, 0 false alarms. The 8 missed ones lasted 2.3–2.6 h, inside the normal range: a limit of the simulated data, kept visible rather than tuned away |
+| A 3D printer moving halls | SCD type 2 machine dimension | Energy before the move stays with hall 1 |
+
+## Design decisions
+
+All 32 are in [docs/decisions.md](docs/decisions.md), each with the reason and the alternative. A few that shape the
+project:
+
+- **Custom endpoint, not MQTT** (1): GA, no public broker, standard Event Hubs SDK.
+- **Live data first after an outage** (5): a current dashboard, at the price of late arrivals the pipeline handles.
+- **Insert-only MERGE in silver** (8): replays and re-runs are harmless.
+- **Energy from counter deltas** (9) and **plausibility checks on counter jumps** (28).
+- **Transformations as a tested package** (15), deployed as a wheel to a Fabric Environment.
+- **Structured Streaming for silver, not a materialized lake view** (22): MERGE and cross-batch context.
+- **Gold rebuilt in full** (23): trivially correct at this volume; recompute touched days if it grows.
+- **Explicit reframe of the Direct Lake model** (29): reports never mix new facts with old dimensions.
+- **Coverage grid for data quality** (30): completeness stays right when machines change halls.
+
+## Rebuild it
+
+What's needed: Docker, Node 22, `uv`, Java 17 or later (for local Spark tests), the Azure CLI, an Azure subscription
+and a Microsoft Entra tenant where you are Fabric administrator, and a GitHub fork of this repository.
+
+**Local part (no cloud):**
+```bash
+cd edge && npm ci && npm test            # 34 tests: simulator, gateway, history generator
+npm run history                          # 12 months of history into data/history (about 150 MB)
+cd ../spark && uv sync && uv run pytest  # 30 tests, including end-to-end runs against the ground truth
+cd .. && cp .env.example .env && docker compose up --build   # simulator + gateway, writing JSON lines locally
+docker compose kill -s USR1 gateway      # toggle a simulated network outage
+```
+
+**Fabric part:**
+1. `scripts/capacity.sh budget`, then `scripts/capacity.sh create` (F4 in Sweden Central, paused right after).
+2. `scripts/capacity.sh resume`, then `scripts/fabric-setup.sh`: creates the workspace on the capacity, sets Spark
+   Runtime 2.0 and connects the workspace to `/fabric` of your fork. Needs `GITHUB_PAT` in `.env` (fine-grained, this
+   repository only, Contents read and write) and the tenant switch "Users can sync workspace items with GitHub
+   repositories".
+3. In the workspace: **Source control → Update all**, then publish the Environment `env_am_energy`.
+4. Upload the history: `uv run --no-project --with azure-storage-file-datalake --with azure-identity python scripts/upload_history.py`.
+5. Run `nb_load_history_bronze`, then `pl_daily`.
+6. For live data: copy the Eventstream custom endpoint's connection string into `.env` with `SINK=eventhubs`, then
+   `docker compose up`.
+
+**What isn't automated yet (honest list):** a new workspace has new item ids, so four things need rebinding by hand:
+the notebooks' default `lakehouse_id` parameter, the Direct Lake source in `expressions.tmdl`, the pipeline's
+semantic model refresh activity (and its connection), and the Eventstream key. In production these would come from a
+Variable Library or deployment rules (fabric-cicd).
+
+## Costs
+
+The Fabric trial wasn't available for a brand-new tenant, so the project runs on a paid **F4** capacity
+(pay-as-you-go, about €0.67 per hour in Sweden Central), resumed only while working. Total compute so far: about
+**€8**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
+in the Monitoring hub, and failure alerting is the next step.
+
+## Limits, and what production would add
+
+- **Simulated data:** the faults are realistic in kind, not in proportion to any real plant.
+- **Row-level security** by hall is defined but not enforced end to end: the model reads OneLake with single sign-on,
+  so it would need a fixed-identity connection (or OneLake security) before giving report users access.
+- **Edge:** in production, OPC Publisher or Azure IoT Operations into Event Hubs over private networking, with a
+  managed identity instead of a SAS key.
+- **Platform:** a capacity sized from the Capacity Metrics app and running continuously; dev and prod workspaces with
+  deployment pipelines or fabric-cicd from GitHub Actions; a service principal or workspace identity instead of a
+  personal OAuth connection; alerts on pipeline failures.
+- **Scale:** gold would recompute only the days touched by new data instead of rebuilding in full.
+
+## DP-700 skill mapping
+
+| Skill area | Covered here | Next |
+|---|---|---|
+| Implement and manage an analytics solution | Workspace and Spark settings, Environment, Git integration, pipeline orchestration, schedule and parameters, semantic model security roles, capacity management | Deployment pipeline, workspace roles and item permissions |
+| Ingest and transform data | Eventstream, Spark Structured Streaming, PySpark and Spark SQL, full and incremental loads, deduplication, late and missing data, SCD type 2, windowing in Spark | Eventhouse and KQL, Dataflow Gen2, Warehouse, a materialized lake view |
+| Monitor and optimize | Monitoring hub, Eventstream data insights, OPTIMIZE / V-Order / VACUUM, Spark pool sizing and high concurrency, Direct Lake framing | Activator alerts on failures and on heat-up overruns |
 
 ## Repository layout
 
@@ -44,131 +207,22 @@ flowchart LR
 | `config/` | Simulation assumptions (power, timing, fault rates) |
 | `edge/` | TypeScript: OPC UA simulator, edge gateway, history generator, shared event schema |
 | `spark/` | Silver and gold transformations as a Python package, tested locally |
-| `fabric/` | Fabric item definitions, written by Fabric Git integration |
-| `model/` | Gold star schema and DAX measures |
-| `scripts/` | Fabric CLI / REST helpers |
-| `docs/` | Design decisions and screenshots |
+| `fabric/` | Fabric item definitions written by Git integration: notebooks, pipeline, Environment, Eventstream, Lakehouse, semantic model (TMDL), report (PBIR) |
+| `model/` | Star schema and DAX measures, as designed before building |
+| `scripts/` | Capacity, workspace and Git setup; history upload |
+| `docs/` | Design decisions, screenshots, report PDF |
 
-## Run the edge side
-
-Needs Docker. The gateway writes JSON lines inside its volume until a Fabric Eventstream is configured in `.env`.
-
-```bash
-cp .env.example .env
-docker compose up --build                 # OPC UA simulator + edge gateway
-docker compose kill -s USR1 gateway       # toggle a simulated network outage (buffer, then replay)
-docker compose exec gateway tail -f /data/out/events-$(date -u +%F).jsonl
-```
-
-History for the backfill (12 months, about 5M rows, written to `data/history/` with a `ground_truth.json` of the
-injected faults): `cd edge && npm run history`.
-
-Set `DURATION_SCALE=0.0333` in `.env` to run job cycles 30 times faster for a demo. Tests: `cd edge && npm ci && npm test`.
-
-## Transformations (local tests)
-
-`spark/` is a Python package of pure DataFrame functions (bronze → silver → gold) that runs unchanged in local tests and
-in Fabric (as a wheel in a Fabric Environment). Local tests use the versions of Fabric Runtime 2.0 (Spark 4.1,
-Delta 4.2, Python 3.13) and need Java 17+:
-
-```bash
-cd spark && uv sync && uv run pytest     # end-to-end tests use data/history from `npm run history`
-```
-
-## Design
-
-- [Design decisions](docs/decisions.md): why the edge, the pipeline and the platform are built the way they are.
-- [Semantic model](model/README.md): star schema, DAX measures, row-level security and report pages.
-
-## Progress
-
-Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progress, ⬜ not started.
+## Status
 
 | Phase | What | State |
 |---|---|---|
-| 0 | Everything that runs without Fabric: simulator, gateway, history, transformations, model on paper | ✅ |
+| 0 | Everything that runs without Fabric | ✅ |
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
 | 4 | Direct Lake semantic model and Power BI report | ✅ (RLS enforcement open) |
-| 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | 🔄 next |
-| 6 | Packaging: README, screenshots, demo video | ⬜ |
-
-### What has been built so far
-
-**Edge (local Docker).** An OPC UA server simulates 10 laser-sintering 3D printers in two halls, each with an IP
-energy meter. Each 3D printer cycles through idle, heat-up, building, cool-down and unpacking, and the meters inject
-realistic faults: dropouts, spikes, Bad status codes, a meter swap with a counter reset, over-long heat-ups. An edge
-gateway subscribes over OPC UA, numbers each meter's events, buffers them in SQLite and forwards them to Fabric; a
-simulated network outage makes it replay the backlog, which produces late, out-of-order and duplicate events on
-purpose. A generator writes 12 months of history (5.2M rows, Parquet) from the same model, with a ground-truth file
-of every injected fault.
-
-**Transformations (tested locally first).** Bronze → silver → gold logic lives in a Python package (`spark/`,
-24 tests on Spark 4.1 / Delta 4.2, the versions of Fabric Runtime 2.0). Tests compare the pipeline's output with the
-ground truth: every measurement survives exactly once, energy is conserved per meter, over-long heat-ups are found.
-
-**Fabric platform.** A paid F4 capacity in Sweden Central, paused whenever it isn't used (a new tenant gets no Fabric
-trial; see decision 19). Workspace `am-energy-dev` runs Spark Runtime 2.0 and is connected to this repository's
-`/fabric` folder through Git integration, so every Fabric item is versioned here as text. Workspace, Spark settings
-and Git connection are created by script (`scripts/`).
-
-**Ingestion.** One Lakehouse `lh_energy` with `bronze`, `silver` and `gold` schemas.
-- *Live:* gateway → Eventstream (custom endpoint, Event Hubs protocol) → `bronze.stream_meter_events`.
-- *History:* Parquet files uploaded to OneLake → notebook `nb_load_history_bronze` → `bronze.history_meter_events`,
-  as a full load and incrementally with a file-time watermark.
-
-**Silver.** Notebook `nb_silver` reads both bronze tables with Spark Structured Streaming (`availableNow`, so each
-run processes only new rows), checks data quality, sends rejected rows to `silver.quarantine` with a reason, and
-writes `silver.meter_readings` with an idempotent insert-only MERGE. First run in Fabric: 5,247,269 history rows lost
-exactly the 10,522 injected duplicates; 7,648 rows went to quarantine (Bad status, implausible power, spikes) and
-3,715 accepted rows are flagged late (replayed after simulated gateway outages).
-
-**Gold.** Notebook `nb_gold` rebuilds a star schema from silver: facts for 15-minute energy and cost (time-of-use
-tariff), energy per machine state, heat-ups, build jobs and daily data quality, with dimensions for machine (SCD type
-2: a hall move and a meter swap create new versions), date, 15-minute slot, state and tariff. Tables are written with
-V-Order for fast reads by Power BI.
-
-Heat-up overrun detection (the 2019 alert) checked against the generator's ground truth over 12 months: 100 of 108
-injected overruns found, no false alarms. The 8 missed ones lasted 2.3–2.6 h: the generator stretched a short normal
-heat-up, so they stay inside the normal range (up to 2.5 h) and below the 2.6 h alert threshold; no duration rule can
-tell them apart. That is a limit of the simulated data, kept visible rather than tuned away.
-
-**Orchestration and maintenance.** Pipeline `pl_daily` runs silver → gold → maintenance (about 9 minutes), with
-retries and one shared Spark session, monitored in the Fabric Monitoring hub. Maintenance compacts the append-heavy
-tables with OPTIMIZE and V-Order (the live table went from about 400 small files to 1) and removes unreferenced files
-with VACUUM after 7 days.
-
-**Semantic model (in progress).** `sm_am_energy` is a Direct Lake on OneLake model over the ten gold tables:
-13 many-to-one relationships (facts to machine versions through the SCD2 key, to date, slot, tariff and state),
-`dim_date` marked as date table, first DAX measures for energy, cost, price and peak share. The pipeline reframes it
-once gold is complete, so reports never mix old and new tables.
-
-Checking the first measures per month exposed a bug: when the live simulator started, every meter restarted at its
-initial counter value, and gold booked each drop as a meter swap, inventing about 217,000 kWh in October. Counter
-jumps are now checked for plausibility; impossible ones count as discontinuities (10, one per meter at the
-history-to-live boundary) instead of energy, and the real meter swap is still found.
-
-Measures now cover energy and cost, build jobs, machine states, heat-ups and data quality. Data completeness divides
-what arrived by what was expected, taken from a coverage grid in gold (one row per machine version and day, including
-days without data): about 97.7 % in both halls over the year, after a first DAX version had expected the 3D printer
-that moved halls in both halls all year.
-
-**Report.** `rpt_am_energy` has five pages: park overview, machine drill-down, build jobs, heat-up anomalies (the
-2019 alert: 100 overruns, 5.8 % of judged heat-ups) and data quality (a completeness heat map by 3D printer and
-month). The first two were drafted by hand in the browser; then all five were written as PBIR
-JSON in one layout, validated against Microsoft's schemas and deployed from Git. Row-level security roles by hall are defined; enforcing them needs
-a fixed-identity connection (see the open points in the design decisions).
-
-**Next.** Stretch goals: an Eventhouse with KQL and a real-time dashboard, an Activator alert on heat-up overruns,
-CI/CD; then screenshots and a demo video.
-
-### How code reaches Fabric
-
-The transformation code is built into a Python wheel (`cd spark && uv build --wheel`) and attached to the Fabric
-Environment `env_am_energy` through Git (`fabric/env_am_energy.Environment/Libraries/CustomLibraries/`). After
-**Update** from Git and **Publish**, every notebook using that environment imports the same tested code
-(`from am_energy.silver import …`); notebooks only hold paths, parameters and orchestration.
+| 5 | Eventhouse/KQL and Activator alerts, Dataflow Gen2 and Warehouse, CI | 🔄 next |
+| 6 | Packaging: README, screenshots, demo video | 🔄 first version done; video after phase 5 |
 
 ## License
 
