@@ -118,9 +118,10 @@ version (days in filter × machines) put hall 1 at 84 % and hall 2 at 92 % with 
 expected in both halls for the whole year.
 
 **31. Report pages can be written as code (PBIR JSON) and deployed through Git.** The report is stored in the
-PBIR format: one `visual.json` per visual, with a published JSON schema. Pages 3 to 5 were generated as JSON,
-validated against Microsoft's schemas before committing, and pulled into the workspace with Update from Git. Pages 1
-and 2 were built by hand in the browser; both kinds live side by side and stay editable in either place.
+PBIR format: one `visual.json` per visual, with a published JSON schema. Pages 1 and 2 were first built by hand in the
+browser; then all five pages were generated as JSON in one consistent layout (header with title, subtitle and
+slicers, a KPI row, a two-column grid), validated against Microsoft's schemas before committing, and pulled into the
+workspace with Update from Git. Page ids stay stable, and the pages remain editable in the browser afterwards.
 
 **32. Jobs and heat-ups that span a data gap are filtered out at page level, not deleted.** Their length is an upper
 bound, so averages and the scatter of hours vs energy would be distorted (94 of 1,716 jobs, 6 of 1,719 heat-ups).

@@ -156,8 +156,8 @@ that moved halls in both halls all year.
 
 **Report.** `rpt_am_energy` has five pages: park overview, machine drill-down, build jobs, heat-up anomalies (the
 2019 alert: 100 overruns, 5.8 % of judged heat-ups) and data quality (a completeness heat map by 3D printer and
-month). The first two were built by hand in the browser; the other three were written as PBIR JSON, validated
-against Microsoft's schemas and deployed from Git. Row-level security roles by hall are defined; enforcing them needs
+month). The first two were drafted by hand in the browser; then all five were written as PBIR
+JSON in one layout, validated against Microsoft's schemas and deployed from Git. Row-level security roles by hall are defined; enforcing them needs
 a fixed-identity connection (see the open points in the design decisions).
 
 **Next.** Stretch goals: an Eventhouse with KQL and a real-time dashboard, an Activator alert on heat-up overruns,
