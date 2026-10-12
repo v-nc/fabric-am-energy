@@ -22,23 +22,8 @@ table fact_build_job
 
 		changedProperty = FormatString
 
-	measure Measure
-		displayFolder: Jobs
-		lineageTag: 349e95ee-6790-4612-8f6e-16fe55767fec
-
-		changedProperty = DisplayFolder
-
-		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
-
-	measure 'Measure 2'
-		displayFolder: Jobs
-		lineageTag: d98c76ef-0616-4525-a475-b8df925596cb
-
-		changedProperty = DisplayFolder
-
-		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
-
 	measure kWh_per_build_h = DIVIDE ( SUM ( fact_build_job[build_kwh] ), SUM ( fact_build_job[build_h] ) )
+		formatString: 0.00
 		displayFolder: Jobs
 		lineageTag: 021b81d8-5e8e-4cba-82f0-39d10d9e92e8
 
@@ -46,7 +31,13 @@ table fact_build_job
 
 		changedProperty = Name
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+	measure Build_hours = SUM ( fact_build_job[build_h] )
+		formatString: #,0.0
+		displayFolder: Jobs
+
+	measure Job_energy_kWh = SUM ( fact_build_job[job_kwh] )
+		formatString: #,0.0
+		displayFolder: Jobs
 
 	column job_id
 		dataType: string

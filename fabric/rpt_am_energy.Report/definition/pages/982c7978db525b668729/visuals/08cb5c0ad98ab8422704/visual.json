@@ -1,0 +1,127 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "08cb5c0ad98ab8422704",
+  "position": {
+    "x": 24,
+    "y": 672,
+    "z": 6000,
+    "height": 384,
+    "width": 928,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "columnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "year_month"
+                }
+              },
+              "queryRef": "dim_date.year_month",
+              "nativeQueryRef": "year_month",
+              "displayName": "Month"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_rejected_bad_status"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_rejected_bad_status",
+              "nativeQueryRef": "DQ_rejected_bad_status",
+              "displayName": "Bad OPC status"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_rejected_implausible_power"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_rejected_implausible_power",
+              "nativeQueryRef": "DQ_rejected_implausible_power",
+              "displayName": "Implausible power"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_rejected_spike"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_rejected_spike",
+              "nativeQueryRef": "DQ_rejected_spike",
+              "displayName": "Spike"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_date"
+                  }
+                },
+                "Property": "year_month"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Rejected readings per month, by reason'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

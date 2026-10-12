@@ -1,0 +1,98 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "1780735c99e97d2ce249",
+  "position": {
+    "x": 968,
+    "y": 256,
+    "z": 6000,
+    "height": 380,
+    "width": 928,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_machine"
+                    }
+                  },
+                  "Property": "machine_id"
+                }
+              },
+              "queryRef": "dim_machine.machine_id",
+              "nativeQueryRef": "machine_id",
+              "displayName": "3D printer"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_up_overrun_rate"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_up_overrun_rate",
+              "nativeQueryRef": "Heat_up_overrun_rate",
+              "displayName": "Overrun rate",
+              "format": "0.0%"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_heatup"
+                  }
+                },
+                "Property": "Heat_up_overrun_rate"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Overrun rate by 3D printer'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -18,24 +18,9 @@ table fact_data_quality_daily
 
 		changedProperty = Name
 
-	measure Data_completeness =
-			
-			DIVIDE (
-			    SUM ( fact_data_quality_daily[minutes_covered] ),
-			    1440 * COUNTROWS ( dim_date ) * DISTINCTCOUNT ( dim_machine[machine_id] )
-			)
-		formatString: 0.00%;-0.00%;0.00%
-		displayFolder: Data quality
-		lineageTag: 8352b9d3-b486-4b68-91c6-d499253b47f6
-
-		changedProperty = DisplayFolder
-
-		changedProperty = Name
-
-		changedProperty = FormatString
-
 	measure DQ_events_received = SUM ( fact_data_quality_daily[events_received] )
 		formatString: 0
+		displayFolder: Data quality
 		lineageTag: c3b99bb4-0841-4bbc-a3e9-48edd325166c
 
 		changedProperty = Name
@@ -75,6 +60,7 @@ table fact_data_quality_daily
 			)
 			
 			```
+		formatString: 0.0%;-0.0%;0.0%
 		displayFolder: Data quality
 		lineageTag: 6f655328-9dff-4383-83fb-68b4ffd2d542
 
@@ -82,7 +68,17 @@ table fact_data_quality_daily
 
 		changedProperty = Name
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+	measure DQ_rejected_bad_status = SUM ( fact_data_quality_daily[rejected_bad_status] )
+		formatString: #,0
+		displayFolder: Data quality
+
+	measure DQ_rejected_implausible_power = SUM ( fact_data_quality_daily[rejected_implausible_power] )
+		formatString: #,0
+		displayFolder: Data quality
+
+	measure DQ_rejected_spike = SUM ( fact_data_quality_daily[rejected_spike] )
+		formatString: #,0
+		displayFolder: Data quality
 
 	column meter_id
 		dataType: string

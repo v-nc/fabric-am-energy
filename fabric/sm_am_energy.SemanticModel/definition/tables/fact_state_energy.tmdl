@@ -3,14 +3,13 @@ table fact_state_energy
 	sourceLineageTag: [gold].[fact_state_energy]
 
 	measure State_hours = SUM ( fact_state_energy[hours] )
+		formatString: #,0
 		displayFolder: States
 		lineageTag: de808d44-763d-43cd-b533-ab5965d15a53
 
 		changedProperty = Name
 
 		changedProperty = DisplayFolder
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure Idle_share =
 			

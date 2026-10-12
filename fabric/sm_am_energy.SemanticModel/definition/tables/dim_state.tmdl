@@ -8,6 +8,7 @@ table dim_state
 		sourceLineageTag: state
 		summarizeBy: none
 		sourceColumn: state
+		sortByColumn: sort_order
 
 		annotation SummarizationSetBy = Automatic
 
@@ -17,6 +18,7 @@ table dim_state
 		sourceLineageTag: state_name
 		summarizeBy: none
 		sourceColumn: state_name
+		sortByColumn: sort_order
 
 		annotation SummarizationSetBy = Automatic
 
@@ -26,7 +28,6 @@ table dim_state
 		sourceLineageTag: sort_order
 		summarizeBy: none
 		sourceColumn: sort_order
-		sortByColumn: state
 
 		changedProperty = FormatString
 

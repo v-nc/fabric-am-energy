@@ -1,0 +1,97 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "0c696e7ffc0b4b1ea1a4",
+  "position": {
+    "x": 968,
+    "y": 256,
+    "z": 6000,
+    "height": 380,
+    "width": 928,
+    "tabOrder": 6000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_machine"
+                    }
+                  },
+                  "Property": "machine_id"
+                }
+              },
+              "queryRef": "dim_machine.machine_id",
+              "nativeQueryRef": "machine_id",
+              "displayName": "3D printer"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "kWh_per_job"
+                }
+              },
+              "queryRef": "fact_build_job.kWh_per_job",
+              "nativeQueryRef": "kWh_per_job",
+              "displayName": "kWh per job"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_build_job"
+                  }
+                },
+                "Property": "kWh_per_job"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Average energy per job by 3D printer (kWh)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

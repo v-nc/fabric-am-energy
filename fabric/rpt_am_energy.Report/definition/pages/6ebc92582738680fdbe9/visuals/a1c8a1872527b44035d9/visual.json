@@ -1,0 +1,85 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "a1c8a1872527b44035d9",
+  "position": {
+    "x": 24,
+    "y": 112,
+    "z": 4000,
+    "height": 128,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_ups"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_ups",
+              "nativeQueryRef": "Heat_ups",
+              "displayName": "Heat-ups"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_up_overruns"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_up_overruns",
+              "nativeQueryRef": "Heat_up_overruns",
+              "displayName": "Overruns"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_up_overrun_rate"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_up_overrun_rate",
+              "nativeQueryRef": "Heat_up_overrun_rate",
+              "displayName": "Overrun rate",
+              "format": "0.0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Avg_heat_up_h"
+                }
+              },
+              "queryRef": "fact_heatup.Avg_heat_up_h",
+              "nativeQueryRef": "Avg_heat_up_h",
+              "displayName": "Average heat-up (h)"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

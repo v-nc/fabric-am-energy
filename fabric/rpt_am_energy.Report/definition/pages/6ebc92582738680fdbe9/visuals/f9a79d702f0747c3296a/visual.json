@@ -1,0 +1,225 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "f9a79d702f0747c3296a",
+  "position": {
+    "x": 24,
+    "y": 652,
+    "z": 7000,
+    "height": 404,
+    "width": 1872,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_machine"
+                    }
+                  },
+                  "Property": "machine_id"
+                }
+              },
+              "queryRef": "dim_machine.machine_id",
+              "nativeQueryRef": "machine_id",
+              "displayName": "3D printer"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "date"
+                }
+              },
+              "queryRef": "dim_date.date",
+              "nativeQueryRef": "date",
+              "displayName": "Day"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "start_ts"
+                }
+              },
+              "queryRef": "fact_heatup.start_ts",
+              "nativeQueryRef": "start_ts",
+              "displayName": "Start (UTC)"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "job_id"
+                }
+              },
+              "queryRef": "fact_heatup.job_id",
+              "nativeQueryRef": "job_id",
+              "displayName": "Following build job"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Avg_heat_up_h"
+                }
+              },
+              "queryRef": "fact_heatup.Avg_heat_up_h",
+              "nativeQueryRef": "Avg_heat_up_h",
+              "displayName": "Duration (h)"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "threshold_h"
+                }
+              },
+              "queryRef": "fact_heatup.threshold_h",
+              "nativeQueryRef": "threshold_h",
+              "displayName": "Threshold (h)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_up_energy_kWh"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_up_energy_kWh",
+              "nativeQueryRef": "Heat_up_energy_kWh",
+              "displayName": "Heat-up energy (kWh)"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "fact_heatup"
+                  }
+                },
+                "Property": "start_ts"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Overrun heat-ups, most recent first'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "d904fe290533711bf4d2",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "fact_heatup"
+              }
+            },
+            "Property": "is_overrun"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "h",
+              "Entity": "fact_heatup",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "h"
+                          }
+                        },
+                        "Property": "is_overrun"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "true"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

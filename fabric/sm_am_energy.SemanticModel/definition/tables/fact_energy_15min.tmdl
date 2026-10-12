@@ -36,21 +36,19 @@ table fact_energy_15min
 		changedProperty = FormatString
 
 	measure Peak_share = DIVIDE ( CALCULATE ( [Energy_kWh], dim_tariff[tariff_band] = "peak" ), [Energy_kWh] )
+		formatString: 0.0%;-0.0%;0.0%
 		lineageTag: ac30fb1b-befa-4dea-9dc8-11eb53ec7b07
 
 		changedProperty = Name
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
-
 	measure Energy_kWh_PM = CALCULATE ( [Energy_kWh], DATEADD ( dim_date[date], -1, MONTH ) )
+		formatString: #,0
 		displayFolder: Energy
 		lineageTag: 0a6367af-d5c7-4f20-90c3-1ca3161d2ea4
 
 		changedProperty = DisplayFolder
 
 		changedProperty = Name
-
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
 
 	measure Energy_vs_PM = DIVIDE ( [Energy_kWh] - [Energy_kWh_PM], [Energy_kWh_PM] )
 		formatString: 0.00%;-0.00%;0.00%

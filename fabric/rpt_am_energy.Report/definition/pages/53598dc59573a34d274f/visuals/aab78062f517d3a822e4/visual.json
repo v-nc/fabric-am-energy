@@ -1,0 +1,84 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "aab78062f517d3a822e4",
+  "position": {
+    "x": 24,
+    "y": 112,
+    "z": 4000,
+    "height": 128,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "Build_jobs"
+                }
+              },
+              "queryRef": "fact_build_job.Build_jobs",
+              "nativeQueryRef": "Build_jobs",
+              "displayName": "Build jobs"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "Build_hours"
+                }
+              },
+              "queryRef": "fact_build_job.Build_hours",
+              "nativeQueryRef": "Build_hours",
+              "displayName": "Build hours"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "kWh_per_job"
+                }
+              },
+              "queryRef": "fact_build_job.kWh_per_job",
+              "nativeQueryRef": "kWh_per_job",
+              "displayName": "kWh per job"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "kWh_per_build_h"
+                }
+              },
+              "queryRef": "fact_build_job.kWh_per_build_h",
+              "nativeQueryRef": "kWh_per_build_h",
+              "displayName": "kWh per build hour"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

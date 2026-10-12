@@ -1,0 +1,115 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "106da6eb85a5a8acb2b6",
+  "position": {
+    "x": 24,
+    "y": 112,
+    "z": 4000,
+    "height": 128,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_completeness"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_completeness",
+              "nativeQueryRef": "DQ_completeness",
+              "displayName": "Completeness",
+              "format": "0.0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_events_received"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_events_received",
+              "nativeQueryRef": "DQ_events_received",
+              "displayName": "Events received"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_duplicates_removed"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_duplicates_removed",
+              "nativeQueryRef": "DQ_duplicates_removed",
+              "displayName": "Duplicates removed"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "Rejected_readings"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.Rejected_readings",
+              "nativeQueryRef": "Rejected_readings",
+              "displayName": "Rejected readings"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_late_events"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_late_events",
+              "nativeQueryRef": "DQ_late_events",
+              "displayName": "Late events"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_counter_discontinuities"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_counter_discontinuities",
+              "nativeQueryRef": "DQ_counter_discontinuities",
+              "displayName": "Counter discontinuities"
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

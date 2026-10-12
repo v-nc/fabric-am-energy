@@ -32,7 +32,7 @@ table fact_heatup
 		changedProperty = FormatString
 
 	measure Avg_heat_up_h = AVERAGE ( fact_heatup[duration_h] )
-		formatString: 0.0
+		formatString: 0.00
 		displayFolder: Heat-ups
 		lineageTag: cb8735aa-28ee-4226-9265-3f31e5faf91c
 
@@ -41,6 +41,10 @@ table fact_heatup
 		changedProperty = Name
 
 		changedProperty = FormatString
+
+	measure Heat_up_energy_kWh = SUM ( fact_heatup[kwh] )
+		formatString: #,0.0
+		displayFolder: Heat-ups
 
 	column machine_id
 		dataType: string
