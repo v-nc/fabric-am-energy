@@ -28,7 +28,8 @@
               },
               "queryRef": "fact_build_job.Build_jobs",
               "nativeQueryRef": "Build_jobs",
-              "displayName": "Build jobs"
+              "displayName": "Build jobs",
+              "format": "#,0"
             },
             {
               "field": {

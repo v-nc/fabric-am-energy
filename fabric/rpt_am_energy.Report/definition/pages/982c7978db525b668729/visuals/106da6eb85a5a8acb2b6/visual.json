@@ -44,7 +44,8 @@
               },
               "queryRef": "fact_data_quality_daily.DQ_events_received",
               "nativeQueryRef": "DQ_events_received",
-              "displayName": "Events received"
+              "displayName": "Events received",
+              "format": "#,0"
             },
             {
               "field": {
@@ -59,7 +60,8 @@
               },
               "queryRef": "fact_data_quality_daily.DQ_duplicates_removed",
               "nativeQueryRef": "DQ_duplicates_removed",
-              "displayName": "Duplicates removed"
+              "displayName": "Duplicates removed",
+              "format": "#,0"
             },
             {
               "field": {
@@ -74,7 +76,8 @@
               },
               "queryRef": "fact_data_quality_daily.Rejected_readings",
               "nativeQueryRef": "Rejected_readings",
-              "displayName": "Rejected readings"
+              "displayName": "Rejected readings",
+              "format": "#,0"
             },
             {
               "field": {
@@ -89,7 +92,8 @@
               },
               "queryRef": "fact_data_quality_daily.DQ_late_events",
               "nativeQueryRef": "DQ_late_events",
-              "displayName": "Late events"
+              "displayName": "Late events",
+              "format": "#,0"
             },
             {
               "field": {
@@ -104,7 +108,8 @@
               },
               "queryRef": "fact_data_quality_daily.DQ_counter_discontinuities",
               "nativeQueryRef": "DQ_counter_discontinuities",
-              "displayName": "Counter discontinuities"
+              "displayName": "Counter discontinuities",
+              "format": "#,0"
             }
           ]
         }

@@ -28,7 +28,8 @@
               },
               "queryRef": "fact_heatup.Heat_ups",
               "nativeQueryRef": "Heat_ups",
-              "displayName": "Heat-ups"
+              "displayName": "Heat-ups",
+              "format": "#,0"
             },
             {
               "field": {
@@ -43,7 +44,8 @@
               },
               "queryRef": "fact_heatup.Heat_up_overruns",
               "nativeQueryRef": "Heat_up_overruns",
-              "displayName": "Overruns"
+              "displayName": "Overruns",
+              "format": "#,0"
             },
             {
               "field": {
