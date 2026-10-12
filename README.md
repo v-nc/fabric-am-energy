@@ -90,7 +90,7 @@ Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progres
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
-| 4 | Direct Lake semantic model and Power BI report | 🔄 model and first measures |
+| 4 | Direct Lake semantic model and Power BI report | 🔄 model and measures done; RLS and report next |
 | 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
 | 6 | Packaging: README, screenshots, demo video | ⬜ |
 
@@ -149,7 +149,12 @@ initial counter value, and gold booked each drop as a meter swap, inventing abou
 jumps are now checked for plausibility; impossible ones count as discontinuities (10, one per meter at the
 history-to-live boundary) instead of energy, and the real meter swap is still found.
 
-**Next.** Remaining measures, row-level security by hall, and the report.
+Measures now cover energy and cost, build jobs, machine states, heat-ups and data quality. Data completeness divides
+what arrived by what was expected, taken from a coverage grid in gold (one row per machine version and day, including
+days without data): about 97.7 % in both halls over the year, after a first DAX version had expected the 3D printer
+that moved halls in both halls all year.
+
+**Next.** Row-level security by hall, and the report.
 
 ### How code reaches Fabric
 
