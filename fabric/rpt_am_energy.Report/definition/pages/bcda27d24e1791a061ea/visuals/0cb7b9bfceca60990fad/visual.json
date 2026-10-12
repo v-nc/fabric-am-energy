@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "8ee6cff578048fc789c7",
+  "name": "0cb7b9bfceca60990fad",
   "position": {
-    "x": 307,
-    "y": 0,
-    "z": 1,
-    "height": 151,
-    "width": 118,
-    "tabOrder": 1
+    "x": 1452,
+    "y": 4,
+    "z": 3000,
+    "height": 96,
+    "width": 444,
+    "tabOrder": 3000
   },
   "visual": {
     "visualType": "slicer",
@@ -20,15 +20,15 @@
                 "Column": {
                   "Expression": {
                     "SourceRef": {
-                      "Entity": "dim_machine"
+                      "Entity": "dim_date"
                     }
                   },
-                  "Property": "hall_id"
+                  "Property": "date"
                 }
               },
-              "queryRef": "dim_machine.hall_id",
-              "nativeQueryRef": "hall_id",
-              "active": true
+              "queryRef": "dim_date.date",
+              "nativeQueryRef": "date",
+              "displayName": "Date"
             }
           ]
         }
@@ -41,37 +41,14 @@
             "mode": {
               "expr": {
                 "Literal": {
-                  "Value": "'Basic'"
+                  "Value": "'Between'"
                 }
               }
             }
           }
         }
-      ],
-      "general": [
-        {
-          "properties": {}
-        }
       ]
     },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "1b315033ba5e15d21705",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_machine"
-              }
-            },
-            "Property": "hall_id"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

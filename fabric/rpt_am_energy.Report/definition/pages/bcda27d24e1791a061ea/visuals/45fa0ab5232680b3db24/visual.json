@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "45fa0ab5232680b3db24",
+  "position": {
+    "x": 24,
+    "y": 8,
+    "z": 1000,
+    "height": 88,
+    "width": 1140,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Park overview: energy, cost and machine states",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "20pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Simulated park of 10 laser-sintering 3D printers in two halls. Energy from the meters' kWh counters; cost with an assumed time-of-use tariff (peak 0.24 €/kWh on weekdays 07–20 h, otherwise 0.17 €/kWh).",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#605E5C"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

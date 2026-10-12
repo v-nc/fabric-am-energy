@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "ae8af305fc689a8237e9",
+  "name": "1761207416cbaf49837b",
   "position": {
-    "x": 165.66228513650151,
-    "y": 184.48754481110396,
-    "z": 2,
-    "height": 391.56540123173085,
-    "width": 1754.5142016729478,
-    "tabOrder": 2
+    "x": 24,
+    "y": 256,
+    "z": 5000,
+    "height": 380,
+    "width": 1872,
+    "tabOrder": 5000
   },
   "visual": {
     "visualType": "lineChart",
@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_date.date",
               "nativeQueryRef": "date",
-              "active": true
+              "displayName": "Day"
             }
           ]
         },
@@ -46,7 +46,8 @@
                 }
               },
               "queryRef": "fact_energy_15min.Energy_kWh",
-              "nativeQueryRef": "Energy_kWh"
+              "nativeQueryRef": "Energy_kWh",
+              "displayName": "Energy (kWh)"
             }
           ]
         }
@@ -66,42 +67,31 @@
             },
             "direction": "Ascending"
           }
-        ],
-        "isDefaultSort": true
+        ]
       }
     },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Energy per day (kWh)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "b0c0d784b01c13733ff6",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_date"
-              }
-            },
-            "Property": "date"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "e6330d0f1f4a6d8915b3",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_energy_15min"
-              }
-            },
-            "Property": "Energy_kWh"
-          }
-        },
-        "type": "Advanced"
-      }
-    ]
   }
 }

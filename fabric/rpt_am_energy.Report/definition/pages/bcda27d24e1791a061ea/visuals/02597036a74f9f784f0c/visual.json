@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "a11b4236bcffb5a108e2",
+  "name": "02597036a74f9f784f0c",
   "position": {
-    "x": 1006.9582817946699,
-    "y": 474.98032160125939,
-    "z": 5,
-    "height": 604.52040931069382,
-    "width": 913.68941864387716,
-    "tabOrder": 5
+    "x": 24,
+    "y": 652,
+    "z": 7000,
+    "height": 404,
+    "width": 928,
+    "tabOrder": 7000
   },
   "visual": {
     "visualType": "hundredPercentStackedBarChart",
@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_machine.machine_id",
               "nativeQueryRef": "machine_id",
-              "active": true
+              "displayName": "3D printer"
             }
           ]
         },
@@ -46,7 +46,8 @@
                 }
               },
               "queryRef": "dim_state.state_name",
-              "nativeQueryRef": "state_name"
+              "nativeQueryRef": "state_name",
+              "displayName": "State"
             }
           ]
         },
@@ -64,7 +65,8 @@
                 }
               },
               "queryRef": "fact_state_energy.State_hours",
-              "nativeQueryRef": "State_hours"
+              "nativeQueryRef": "State_hours",
+              "displayName": "Hours"
             }
           ]
         }
@@ -73,67 +75,42 @@
         "sort": [
           {
             "field": {
-              "Measure": {
+              "Column": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "fact_state_energy"
+                    "Entity": "dim_machine"
                   }
                 },
-                "Property": "State_hours"
+                "Property": "machine_id"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
-        ],
-        "isDefaultSort": true
+        ]
       }
     },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Share of time per machine state (unknown = data gap)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "4a7cc4da6fd3415e0f4b",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_machine"
-              }
-            },
-            "Property": "machine_id"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "e8a1b17e609511e8386b",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_state_energy"
-              }
-            },
-            "Property": "State_hours"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "662e5c2f502258d8cf02",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_state"
-              }
-            },
-            "Property": "state_name"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

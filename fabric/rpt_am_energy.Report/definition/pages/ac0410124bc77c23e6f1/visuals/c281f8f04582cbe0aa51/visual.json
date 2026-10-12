@@ -1,0 +1,139 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "c281f8f04582cbe0aa51",
+  "position": {
+    "x": 968,
+    "y": 652,
+    "z": 7000,
+    "height": 404,
+    "width": 928,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "job_id"
+                }
+              },
+              "queryRef": "fact_build_job.job_id",
+              "nativeQueryRef": "job_id",
+              "displayName": "Job"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "dim_date"
+                    }
+                  },
+                  "Property": "date"
+                }
+              },
+              "queryRef": "dim_date.date",
+              "nativeQueryRef": "date",
+              "displayName": "Build start",
+              "format": "yyyy-MM-dd"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "Build_hours"
+                }
+              },
+              "queryRef": "fact_build_job.Build_hours",
+              "nativeQueryRef": "Build_hours",
+              "displayName": "Build hours"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "Job_energy_kWh"
+                }
+              },
+              "queryRef": "fact_build_job.Job_energy_kWh",
+              "nativeQueryRef": "Job_energy_kWh",
+              "displayName": "Job energy (kWh)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "kWh_per_build_h"
+                }
+              },
+              "queryRef": "fact_build_job.kWh_per_build_h",
+              "nativeQueryRef": "kWh_per_build_h",
+              "displayName": "kWh per build hour"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "dim_date"
+                  }
+                },
+                "Property": "date"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Build jobs, most recent first'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

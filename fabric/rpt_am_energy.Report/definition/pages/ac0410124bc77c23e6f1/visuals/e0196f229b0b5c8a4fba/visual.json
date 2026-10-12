@@ -1,0 +1,136 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "e0196f229b0b5c8a4fba",
+  "position": {
+    "x": 24,
+    "y": 112,
+    "z": 4000,
+    "height": 128,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_kWh"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_kWh",
+              "nativeQueryRef": "Energy_kWh",
+              "displayName": "Energy (kWh)",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "Build_jobs"
+                }
+              },
+              "queryRef": "fact_build_job.Build_jobs",
+              "nativeQueryRef": "Build_jobs",
+              "displayName": "Build jobs",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "kWh_per_job"
+                }
+              },
+              "queryRef": "fact_build_job.kWh_per_job",
+              "nativeQueryRef": "kWh_per_job",
+              "displayName": "kWh per job"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_build_job"
+                    }
+                  },
+                  "Property": "kWh_per_build_h"
+                }
+              },
+              "queryRef": "fact_build_job.kWh_per_build_h",
+              "nativeQueryRef": "kWh_per_build_h",
+              "displayName": "kWh per build hour"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_state_energy"
+                    }
+                  },
+                  "Property": "Idle_share"
+                }
+              },
+              "queryRef": "fact_state_energy.Idle_share",
+              "nativeQueryRef": "Idle_share",
+              "displayName": "Idle share of time",
+              "format": "0.0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_heatup"
+                    }
+                  },
+                  "Property": "Heat_up_overruns"
+                }
+              },
+              "queryRef": "fact_heatup.Heat_up_overruns",
+              "nativeQueryRef": "Heat_up_overruns",
+              "displayName": "Heat-up overruns",
+              "format": "#,0"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

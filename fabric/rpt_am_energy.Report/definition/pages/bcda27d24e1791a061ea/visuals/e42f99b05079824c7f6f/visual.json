@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "d0607281c79a261060d1",
+  "name": "e42f99b05079824c7f6f",
   "position": {
-    "x": 10.363207016754751,
-    "y": 474.98032160125939,
-    "z": 3,
-    "height": 191.71932980996289,
-    "width": 996.59507477791522,
-    "tabOrder": 3
+    "x": 24,
+    "y": 256,
+    "z": 5000,
+    "height": 380,
+    "width": 928,
+    "tabOrder": 5000
   },
   "visual": {
     "visualType": "columnChart",
@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_date.year_month",
               "nativeQueryRef": "year_month",
-              "active": true
+              "displayName": "Month"
             }
           ]
         },
@@ -46,7 +46,8 @@
                 }
               },
               "queryRef": "dim_machine.hall_id",
-              "nativeQueryRef": "hall_id"
+              "nativeQueryRef": "hall_id",
+              "displayName": "Hall"
             }
           ]
         },
@@ -64,7 +65,8 @@
                 }
               },
               "queryRef": "fact_energy_15min.Energy_kWh",
-              "nativeQueryRef": "Energy_kWh"
+              "nativeQueryRef": "Energy_kWh",
+              "displayName": "Energy (kWh)"
             }
           ]
         }
@@ -73,67 +75,42 @@
         "sort": [
           {
             "field": {
-              "Measure": {
+              "Column": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "fact_energy_15min"
+                    "Entity": "dim_date"
                   }
                 },
-                "Property": "Energy_kWh"
+                "Property": "year_month"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
-        ],
-        "isDefaultSort": true
+        ]
       }
     },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Energy per month, by hall (kWh)'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "55d1c25f13f65d5098a8",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_date"
-              }
-            },
-            "Property": "year_month"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "5e8327e2f94f55d3d732",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_energy_15min"
-              }
-            },
-            "Property": "Energy_kWh"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "64588fa43ce92ddeddd4",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_machine"
-              }
-            },
-            "Property": "hall_id"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }

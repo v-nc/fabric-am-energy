@@ -1,0 +1,137 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "60e4282a1e8f1e1ea013",
+  "position": {
+    "x": 24,
+    "y": 112,
+    "z": 4000,
+    "height": 128,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_kWh"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_kWh",
+              "nativeQueryRef": "Energy_kWh",
+              "displayName": "Energy (kWh)",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Energy_cost"
+                }
+              },
+              "queryRef": "fact_energy_15min.Energy_cost",
+              "nativeQueryRef": "Energy_cost",
+              "displayName": "Energy cost",
+              "format": "#,0 €"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Avg_price_per_kWh"
+                }
+              },
+              "queryRef": "fact_energy_15min.Avg_price_per_kWh",
+              "nativeQueryRef": "Avg_price_per_kWh",
+              "displayName": "Average price per kWh"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_energy_15min"
+                    }
+                  },
+                  "Property": "Peak_share"
+                }
+              },
+              "queryRef": "fact_energy_15min.Peak_share",
+              "nativeQueryRef": "Peak_share",
+              "displayName": "Energy at peak tariff",
+              "format": "0.0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_state_energy"
+                    }
+                  },
+                  "Property": "Idle_share"
+                }
+              },
+              "queryRef": "fact_state_energy.Idle_share",
+              "nativeQueryRef": "Idle_share",
+              "displayName": "Idle share of time",
+              "format": "0.0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "fact_data_quality_daily"
+                    }
+                  },
+                  "Property": "DQ_completeness"
+                }
+              },
+              "queryRef": "fact_data_quality_daily.DQ_completeness",
+              "nativeQueryRef": "DQ_completeness",
+              "displayName": "Data completeness",
+              "format": "0.0%"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,13 +1,13 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
-  "name": "505de84de9634165fd55",
+  "name": "9f5d7c3fcd60813e7c35",
   "position": {
-    "x": 165.66228513650151,
-    "y": 611.82093942457936,
-    "z": 3,
-    "height": 468.74896589760084,
-    "width": 1754.5142016729478,
-    "tabOrder": 3
+    "x": 24,
+    "y": 652,
+    "z": 6000,
+    "height": 404,
+    "width": 928,
+    "tabOrder": 6000
   },
   "visual": {
     "visualType": "columnChart",
@@ -28,7 +28,7 @@
               },
               "queryRef": "dim_date.year_month",
               "nativeQueryRef": "year_month",
-              "active": true
+              "displayName": "Month"
             }
           ]
         },
@@ -46,7 +46,8 @@
                 }
               },
               "queryRef": "dim_state.state_name",
-              "nativeQueryRef": "state_name"
+              "nativeQueryRef": "state_name",
+              "displayName": "State"
             }
           ]
         },
@@ -64,7 +65,9 @@
                 }
               },
               "queryRef": "fact_state_energy.State_hours",
-              "nativeQueryRef": "State_hours"
+              "nativeQueryRef": "State_hours",
+              "displayName": "Hours",
+              "format": "#,0"
             }
           ]
         }
@@ -73,67 +76,42 @@
         "sort": [
           {
             "field": {
-              "Measure": {
+              "Column": {
                 "Expression": {
                   "SourceRef": {
-                    "Entity": "fact_state_energy"
+                    "Entity": "dim_date"
                   }
                 },
-                "Property": "State_hours"
+                "Property": "year_month"
               }
             },
-            "direction": "Descending"
+            "direction": "Ascending"
           }
-        ],
-        "isDefaultSort": true
+        ]
       }
     },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Hours per machine state, by month'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
     "drillFilterOtherVisuals": true
-  },
-  "filterConfig": {
-    "filters": [
-      {
-        "name": "459b7c5c590bc137c082",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_date"
-              }
-            },
-            "Property": "year_month"
-          }
-        },
-        "type": "Categorical"
-      },
-      {
-        "name": "8333e83769989f981f99",
-        "field": {
-          "Measure": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "fact_state_energy"
-              }
-            },
-            "Property": "State_hours"
-          }
-        },
-        "type": "Advanced"
-      },
-      {
-        "name": "81ae54ff2544f0660555",
-        "field": {
-          "Column": {
-            "Expression": {
-              "SourceRef": {
-                "Entity": "dim_state"
-              }
-            },
-            "Property": "state_name"
-          }
-        },
-        "type": "Categorical"
-      }
-    ]
   }
 }
