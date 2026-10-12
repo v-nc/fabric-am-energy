@@ -1,0 +1,11 @@
+expression 'DirectLake - lh_energy' =
+		let
+		    Source = AzureStorage.DataLake("https://onelake.dfs.fabric.microsoft.com/1a1fb8c0-f461-4025-ab89-a04bcfe30756/9d7ad7e7-c954-4865-8034-3986cdd9db39", [HierarchicalNavigation=true])
+		in
+		    Source
+	lineageTag: d9cd8d5a-4c1f-4570-8411-b10def6a65a7
+
+	annotation PBI_IncludeFutureArtifacts = False
+
+	annotation PBI_RemovedChildren = [{"remoteItemId":{"analysisServicesObject":{"sourceName":null,"sourceLineageTag":"[bronze].[history_meter_events]"}},"objectType":"Table"},{"remoteItemId":{"analysisServicesObject":{"sourceName":null,"sourceLineageTag":"[bronze].[stream_meter_events]"}},"objectType":"Table"},{"remoteItemId":{"analysisServicesObject":{"sourceName":null,"sourceLineageTag":"[silver].[quarantine]"}},"objectType":"Table"},{"remoteItemId":{"analysisServicesObject":{"sourceName":null,"sourceLineageTag":"[silver].[meter_readings]"}},"objectType":"Table"}]
+

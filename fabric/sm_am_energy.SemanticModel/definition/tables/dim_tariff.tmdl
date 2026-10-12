@@ -1,0 +1,49 @@
+table dim_tariff
+	lineageTag: 3ae9ba76-7590-47bb-9ffa-0acb5c84b369
+	sourceLineageTag: [gold].[dim_tariff]
+
+	column tariff_band
+		dataType: string
+		lineageTag: eef7c4ed-b3a8-4e46-86e6-5745945d24e5
+		sourceLineageTag: tariff_band
+		summarizeBy: none
+		sourceColumn: tariff_band
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: f8939c3b-64bd-47cc-bd1d-25964a767444
+		sourceLineageTag: description
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = Automatic
+
+	column price_per_kwh
+		dataType: double
+		lineageTag: 7c61c743-ef28-4bc6-969d-f9206835bf77
+		sourceLineageTag: price_per_kwh
+		summarizeBy: none
+		sourceColumn: price_per_kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column currency
+		dataType: string
+		lineageTag: 0e29f3ea-0b42-4ec0-ab19-cf4ecabf0c26
+		sourceLineageTag: currency
+		summarizeBy: none
+		sourceColumn: currency
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_tariff = entity
+		mode: directLake
+		source
+			entityName: dim_tariff
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

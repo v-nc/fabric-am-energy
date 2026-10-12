@@ -1,0 +1,52 @@
+relationship 49dba529-e5ff-26e5-b3a9-72cd8efd7ea1
+	fromColumn: fact_energy_15min.date_key
+	toColumn: dim_date.date_key
+
+relationship a22ab1bd-ed4e-4da3-3dc6-7c83a6645dc1
+	fromColumn: fact_state_energy.date_key
+	toColumn: dim_date.date_key
+
+relationship 28d45489-b9ee-82a3-36ff-24529e848878
+	fromColumn: fact_heatup.date_key
+	toColumn: dim_date.date_key
+
+relationship ab0cb56b-c4ac-5f9a-68f5-685dc69368ad
+	fromColumn: fact_build_job.date_key
+	toColumn: dim_date.date_key
+
+relationship ffb28863-6122-43f1-3a9b-6095e4dd91fc
+	fromColumn: fact_data_quality_daily.date_key
+	toColumn: dim_date.date_key
+
+relationship ff39efce-79c8-70e2-322b-124836344caa
+	fromColumn: fact_energy_15min.slot_of_day
+	toColumn: dim_time_slot.slot_of_day
+
+relationship f31059e5-14b1-414a-3de2-576f60bed5b9
+	fromColumn: fact_energy_15min.tariff_band
+	toColumn: dim_tariff.tariff_band
+
+relationship 1a9d5259-475e-b472-8cd4-c0875efb6258
+	fromColumn: fact_state_energy.state
+	toColumn: dim_state.state
+
+relationship ba3d9e64-c2c2-e965-06ea-eba474c692fe
+	fromColumn: fact_energy_15min.machine_sk
+	toColumn: dim_machine.machine_sk
+
+relationship 11f7e7f5-c1b6-ec17-12ba-746f08071898
+	fromColumn: fact_state_energy.machine_sk
+	toColumn: dim_machine.machine_sk
+
+relationship 17b0bbf8-3ae1-c575-60d2-9bc65e464119
+	fromColumn: fact_heatup.machine_sk
+	toColumn: dim_machine.machine_sk
+
+relationship f37096fd-1553-e77a-7866-ce82b6800755
+	fromColumn: fact_build_job.machine_sk
+	toColumn: dim_machine.machine_sk
+
+relationship 34228d2a-b31f-687a-17d2-172eb7c84fd2
+	fromColumn: fact_data_quality_daily.machine_sk
+	toColumn: dim_machine.machine_sk
+

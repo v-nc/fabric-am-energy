@@ -1,0 +1,50 @@
+table dim_time_slot
+	lineageTag: 0f48ff63-bdfe-4f89-a1dc-3552881eea18
+	sourceLineageTag: [gold].[dim_time_slot]
+
+	column slot_of_day
+		dataType: int64
+		formatString: 0
+		lineageTag: fe006da4-d4bd-47f2-979a-63c56509f2e7
+		sourceLineageTag: slot_of_day
+		summarizeBy: none
+		sourceColumn: slot_of_day
+
+		annotation SummarizationSetBy = Automatic
+
+	column slot_label
+		dataType: string
+		lineageTag: 54c45b77-bb15-411d-93bb-99937df956e8
+		sourceLineageTag: slot_label
+		summarizeBy: none
+		sourceColumn: slot_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column hour
+		dataType: int64
+		formatString: 0
+		lineageTag: ef6ce02b-5738-48dc-b205-9ca1164990a5
+		sourceLineageTag: hour
+		summarizeBy: none
+		sourceColumn: hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_peak_hours
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 76fc668d-a986-4509-a325-e23692d7dfde
+		sourceLineageTag: is_peak_hours
+		summarizeBy: none
+		sourceColumn: is_peak_hours
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_time_slot = entity
+		mode: directLake
+		source
+			entityName: dim_time_slot
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

@@ -1,0 +1,89 @@
+table dim_machine
+	lineageTag: 829f3407-e845-4aae-8520-3f5f69fd0032
+	sourceLineageTag: [gold].[dim_machine]
+
+	column machine_sk
+		dataType: string
+		lineageTag: 1dd75a5a-a953-4206-a283-50abcccc243b
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 8d834693-2d1c-460a-991b-ad7cf0ced90e
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column hall_id
+		dataType: string
+		lineageTag: e37ed66c-c00d-4201-bdf8-f8929d4f805c
+		sourceLineageTag: hall_id
+		summarizeBy: none
+		sourceColumn: hall_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column meter_id
+		dataType: string
+		lineageTag: 3f007681-8556-47dc-a1a3-7e5af96fdd94
+		sourceLineageTag: meter_id
+		summarizeBy: none
+		sourceColumn: meter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column meter_serial
+		dataType: string
+		lineageTag: b24dc8f7-f394-4105-bbe4-bfb2ac606531
+		sourceLineageTag: meter_serial
+		summarizeBy: none
+		sourceColumn: meter_serial
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_from
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: bf7b19b6-af8f-4aaf-a7eb-53fb63e6c0fe
+		sourceLineageTag: valid_from
+		summarizeBy: none
+		sourceColumn: valid_from
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_to
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: df79dc6b-92c5-452a-bb3d-471c8791b411
+		sourceLineageTag: valid_to
+		summarizeBy: none
+		sourceColumn: valid_to
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_current
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 8425ba99-ee9d-4a12-bf06-b9168bfc1422
+		sourceLineageTag: is_current
+		summarizeBy: none
+		sourceColumn: is_current
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_machine = entity
+		mode: directLake
+		source
+			entityName: dim_machine
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

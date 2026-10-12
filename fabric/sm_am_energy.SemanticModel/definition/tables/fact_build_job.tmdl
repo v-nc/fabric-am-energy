@@ -1,0 +1,147 @@
+table fact_build_job
+	lineageTag: 2caa58ca-4609-48f6-b7e4-0f5e82132077
+	sourceLineageTag: [gold].[fact_build_job]
+
+	column job_id
+		dataType: string
+		lineageTag: 8ceac42c-f5dc-4dce-9253-21812249a865
+		sourceLineageTag: job_id
+		summarizeBy: none
+		sourceColumn: job_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 62a39bd3-d170-4a65-913e-8518a5d71ab2
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 509c191d-e361-4387-921a-2d54f5e27ca3
+		sourceLineageTag: start_ts
+		summarizeBy: none
+		sourceColumn: start_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: ca8b0463-280e-4dc4-a47c-6605b5d412e2
+		sourceLineageTag: end_ts
+		summarizeBy: none
+		sourceColumn: end_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: bdeca786-83e0-4632-a2ca-03f17844bd76
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column build_h
+		dataType: double
+		lineageTag: 71248958-c70e-46e7-99b7-b2380c627a04
+		sourceLineageTag: build_h
+		summarizeBy: sum
+		sourceColumn: build_h
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column build_kwh
+		dataType: double
+		lineageTag: 7fc759c7-f457-4e7c-9d16-cd4340d4359b
+		sourceLineageTag: build_kwh
+		summarizeBy: sum
+		sourceColumn: build_kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column heatup_kwh
+		dataType: double
+		lineageTag: 0279c2da-7f5a-48d8-a8bc-55cfecd3b727
+		sourceLineageTag: heatup_kwh
+		summarizeBy: sum
+		sourceColumn: heatup_kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cooldown_kwh
+		dataType: double
+		lineageTag: 40bc9fb7-0c6f-44cd-802b-ae9520cb6efe
+		sourceLineageTag: cooldown_kwh
+		summarizeBy: sum
+		sourceColumn: cooldown_kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column job_kwh
+		dataType: double
+		lineageTag: e9a89372-96b5-4ec9-b13a-4b80c25df14f
+		sourceLineageTag: job_kwh
+		summarizeBy: sum
+		sourceColumn: job_kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column kwh_per_build_hour
+		dataType: double
+		lineageTag: 4010b553-64ee-493f-8256-72779709f374
+		sourceLineageTag: kwh_per_build_hour
+		summarizeBy: sum
+		sourceColumn: kwh_per_build_hour
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column has_gap
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 13d605c1-67a1-418b-8875-8ada5c68b825
+		sourceLineageTag: has_gap
+		summarizeBy: none
+		sourceColumn: has_gap
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_sk
+		dataType: string
+		lineageTag: fa6db45d-3276-4f51-aa5b-10fbcd2afa33
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_build_job = entity
+		mode: directLake
+		source
+			entityName: fact_build_job
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

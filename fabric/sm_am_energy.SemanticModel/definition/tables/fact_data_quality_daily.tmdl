@@ -1,0 +1,213 @@
+table fact_data_quality_daily
+	lineageTag: 92905162-7bed-4ff3-bbfc-41dabc9a3a64
+	sourceLineageTag: [gold].[fact_data_quality_daily]
+
+	column meter_id
+		dataType: string
+		lineageTag: 1da2f301-3e10-434b-918b-09309bcae4d7
+		sourceLineageTag: meter_id
+		summarizeBy: none
+		sourceColumn: meter_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: e9eece12-dee2-4a0f-b1d3-55bc42287beb
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column events_received
+		dataType: int64
+		formatString: 0
+		lineageTag: 908cc566-c932-41a4-a0db-35e4d9784c49
+		sourceLineageTag: events_received
+		summarizeBy: sum
+		sourceColumn: events_received
+
+		annotation SummarizationSetBy = Automatic
+
+	column measurements
+		dataType: int64
+		formatString: 0
+		lineageTag: 0af2f7d7-50a1-45bd-9515-5f535bf9e305
+		sourceLineageTag: measurements
+		summarizeBy: sum
+		sourceColumn: measurements
+
+		annotation SummarizationSetBy = Automatic
+
+	column valid_readings
+		dataType: int64
+		formatString: 0
+		lineageTag: 26ceeb87-40c8-4a58-9cc1-a3d6df17ae7a
+		sourceLineageTag: valid_readings
+		summarizeBy: sum
+		sourceColumn: valid_readings
+
+		annotation SummarizationSetBy = Automatic
+
+	column uncertain_readings
+		dataType: int64
+		formatString: 0
+		lineageTag: 0f6639d2-5119-4e32-99d6-c0326b87e66b
+		sourceLineageTag: uncertain_readings
+		summarizeBy: sum
+		sourceColumn: uncertain_readings
+
+		annotation SummarizationSetBy = Automatic
+
+	column late_events
+		dataType: int64
+		formatString: 0
+		lineageTag: 0fbc7978-84f8-47ca-8cfc-232fcd339726
+		sourceLineageTag: late_events
+		summarizeBy: sum
+		sourceColumn: late_events
+
+		annotation SummarizationSetBy = Automatic
+
+	column gaps
+		dataType: int64
+		formatString: 0
+		lineageTag: 08674483-1623-4d25-b3ea-27253c819852
+		sourceLineageTag: gaps
+		summarizeBy: sum
+		sourceColumn: gaps
+
+		annotation SummarizationSetBy = Automatic
+
+	column gap_minutes
+		dataType: double
+		lineageTag: cb046045-68f1-4a8d-b946-b140709e6942
+		sourceLineageTag: gap_minutes
+		summarizeBy: sum
+		sourceColumn: gap_minutes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column counter_resets
+		dataType: int64
+		formatString: 0
+		lineageTag: 727501c3-d13a-4d0a-89e3-619eb3bc44dc
+		sourceLineageTag: counter_resets
+		summarizeBy: sum
+		sourceColumn: counter_resets
+
+		annotation SummarizationSetBy = Automatic
+
+	column minutes_covered
+		dataType: int64
+		formatString: 0
+		lineageTag: 8bdc7cd7-9aae-4170-b489-3b6bfaa63f27
+		sourceLineageTag: minutes_covered
+		summarizeBy: sum
+		sourceColumn: minutes_covered
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_missing_value
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c6dec82-2092-4b67-80d9-b2ae5be3adc0
+		sourceLineageTag: rejected_missing_value
+		summarizeBy: sum
+		sourceColumn: rejected_missing_value
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_bad_status
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a0d47dd-5ac0-4289-bc1c-e6f28e6db0fa
+		sourceLineageTag: rejected_bad_status
+		summarizeBy: sum
+		sourceColumn: rejected_bad_status
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_negative_value
+		dataType: int64
+		formatString: 0
+		lineageTag: 0ec2991f-d36f-438e-9058-a9ff699ed511
+		sourceLineageTag: rejected_negative_value
+		summarizeBy: sum
+		sourceColumn: rejected_negative_value
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_implausible_power
+		dataType: int64
+		formatString: 0
+		lineageTag: 97eea4fa-58b1-4259-ad32-a731f422b0b0
+		sourceLineageTag: rejected_implausible_power
+		summarizeBy: sum
+		sourceColumn: rejected_implausible_power
+
+		annotation SummarizationSetBy = Automatic
+
+	column rejected_spike
+		dataType: int64
+		formatString: 0
+		lineageTag: 7755b01c-df4a-4f0d-ba48-cfd873fdc3f4
+		sourceLineageTag: rejected_spike
+		summarizeBy: sum
+		sourceColumn: rejected_spike
+
+		annotation SummarizationSetBy = Automatic
+
+	column duplicates_removed
+		dataType: int64
+		formatString: 0
+		lineageTag: 0936618a-7821-4f7e-bbf5-82031c88a382
+		sourceLineageTag: duplicates_removed
+		summarizeBy: sum
+		sourceColumn: duplicates_removed
+
+		annotation SummarizationSetBy = Automatic
+
+	column completeness
+		dataType: double
+		lineageTag: eb6d91e0-e8b9-41c5-bfb6-2332c69ccf9f
+		sourceLineageTag: completeness
+		summarizeBy: sum
+		sourceColumn: completeness
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 944e5614-03d9-4f08-85a3-1c80c8318027
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_sk
+		dataType: string
+		lineageTag: 9bce4870-475a-4620-b254-b8476d4122ec
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_data_quality_daily = entity
+		mode: directLake
+		source
+			entityName: fact_data_quality_daily
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

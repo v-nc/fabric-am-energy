@@ -1,0 +1,73 @@
+table fact_state_energy
+	lineageTag: 91b9ca00-b858-493b-9a64-b1c25685a27b
+	sourceLineageTag: [gold].[fact_state_energy]
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 5045a99f-7d3b-41b4-94e6-0fc983898bdb
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: ef2b370f-712a-4b3d-94e4-6cb008d24749
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column state
+		dataType: string
+		lineageTag: e6ad2fc7-4073-47a7-b86f-8f011b9a802e
+		sourceLineageTag: state
+		summarizeBy: none
+		sourceColumn: state
+
+		annotation SummarizationSetBy = Automatic
+
+	column hours
+		dataType: double
+		lineageTag: 357c8086-a907-44e8-b836-f7d58558b8ca
+		sourceLineageTag: hours
+		summarizeBy: sum
+		sourceColumn: hours
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column kwh
+		dataType: double
+		lineageTag: eba0c2a4-9393-4cc8-9f4c-377c10349a4b
+		sourceLineageTag: kwh
+		summarizeBy: sum
+		sourceColumn: kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column machine_sk
+		dataType: string
+		lineageTag: 17f954f8-227e-4cc3-b7bc-54856f128f8c
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_state_energy = entity
+		mode: directLake
+		source
+			entityName: fact_state_energy
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

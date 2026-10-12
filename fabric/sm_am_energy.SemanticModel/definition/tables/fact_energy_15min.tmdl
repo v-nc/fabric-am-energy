@@ -1,0 +1,156 @@
+table fact_energy_15min
+	lineageTag: 7dbee05c-8eba-4c10-8ef6-09eeace8e843
+	sourceLineageTag: [gold].[fact_energy_15min]
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 3b75d776-3dcd-4d0c-9a13-71d83f2904ab
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column bucket_start
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b4e4e27e-65a9-46cf-a240-73dc5c227bbe
+		sourceLineageTag: bucket_start
+		summarizeBy: none
+		sourceColumn: bucket_start
+
+		annotation SummarizationSetBy = Automatic
+
+	column bucket_start_local
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: eaee8e0c-fdf5-40d1-a847-2012ed5509db
+		sourceLineageTag: bucket_start_local
+		summarizeBy: none
+		sourceColumn: bucket_start_local
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 8ceff0b2-58ef-4fc9-987a-5011e87c63f1
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column slot_of_day
+		dataType: int64
+		formatString: 0
+		lineageTag: 73f438d1-26f7-4e65-bb66-7b503cf1f8a0
+		sourceLineageTag: slot_of_day
+		summarizeBy: none
+		sourceColumn: slot_of_day
+
+		annotation SummarizationSetBy = Automatic
+
+	column kwh
+		dataType: double
+		lineageTag: 20dc0927-43fc-45fd-af92-4d24063e7ce1
+		sourceLineageTag: kwh
+		summarizeBy: sum
+		sourceColumn: kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column avg_power_kw
+		dataType: double
+		lineageTag: 937f5fdf-7ff6-4bc4-aaca-483303b67610
+		sourceLineageTag: avg_power_kw
+		summarizeBy: sum
+		sourceColumn: avg_power_kw
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column max_power_kw
+		dataType: double
+		lineageTag: bd76229a-6949-4a96-a636-9108169cfdd6
+		sourceLineageTag: max_power_kw
+		summarizeBy: sum
+		sourceColumn: max_power_kw
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column readings
+		dataType: int64
+		formatString: 0
+		lineageTag: 74b4a62c-9f57-44b0-ab7b-f2bfbe9e8be6
+		sourceLineageTag: readings
+		summarizeBy: sum
+		sourceColumn: readings
+
+		annotation SummarizationSetBy = Automatic
+
+	column minutes_covered
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e9f8e51-8db0-4e57-aff1-0f2c0598a707
+		sourceLineageTag: minutes_covered
+		summarizeBy: sum
+		sourceColumn: minutes_covered
+
+		annotation SummarizationSetBy = Automatic
+
+	column completeness
+		dataType: double
+		lineageTag: b7fc4f70-5fde-46a1-b0f4-5eef002d9f9f
+		sourceLineageTag: completeness
+		summarizeBy: sum
+		sourceColumn: completeness
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column tariff_band
+		dataType: string
+		lineageTag: baa6e286-0a48-490a-941c-d23cc790b997
+		sourceLineageTag: tariff_band
+		summarizeBy: none
+		sourceColumn: tariff_band
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost
+		dataType: double
+		lineageTag: 125c5c09-b66f-48da-9567-5bcc71064d40
+		sourceLineageTag: cost
+		summarizeBy: sum
+		sourceColumn: cost
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column machine_sk
+		dataType: string
+		lineageTag: 8164e6d8-0807-40ce-82b6-4344664c979d
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_energy_15min = entity
+		mode: directLake
+		source
+			entityName: fact_energy_15min
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+

@@ -1,0 +1,135 @@
+table fact_heatup
+	lineageTag: 88e10347-2b84-4b3c-8e31-72418b5e6da2
+	sourceLineageTag: [gold].[fact_heatup]
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 4f029519-4408-4125-93f7-e778c5acd635
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column job_id
+		dataType: string
+		lineageTag: d95f0c4a-6b22-4761-8416-7aae4acf5549
+		sourceLineageTag: job_id
+		summarizeBy: none
+		sourceColumn: job_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column start_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: efbdc6f6-86c3-4c04-9074-13f178a13ccc
+		sourceLineageTag: start_ts
+		summarizeBy: none
+		sourceColumn: start_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column end_ts
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 74785b72-2ddd-44d5-a1b5-95c8a06e3a90
+		sourceLineageTag: end_ts
+		summarizeBy: none
+		sourceColumn: end_ts
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: f5b4218e-b8bc-4d42-b66b-8a80a7219cbc
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column duration_h
+		dataType: double
+		lineageTag: a502fe2c-ac86-49b9-8aee-6c664cd6e5b8
+		sourceLineageTag: duration_h
+		summarizeBy: sum
+		sourceColumn: duration_h
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column baseline_h
+		dataType: double
+		lineageTag: 81544a1f-ab2d-4163-903a-c022d78649d7
+		sourceLineageTag: baseline_h
+		summarizeBy: sum
+		sourceColumn: baseline_h
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column threshold_h
+		dataType: double
+		lineageTag: 881dd138-56b4-4a9c-af55-f3c3046d9ae8
+		sourceLineageTag: threshold_h
+		summarizeBy: sum
+		sourceColumn: threshold_h
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column is_overrun
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: c257d829-d321-45d2-b73d-a021fc7f8fe0
+		sourceLineageTag: is_overrun
+		summarizeBy: none
+		sourceColumn: is_overrun
+
+		annotation SummarizationSetBy = Automatic
+
+	column kwh
+		dataType: double
+		lineageTag: 8d3b0ec2-c0ca-4bbe-9610-6888aaa901a9
+		sourceLineageTag: kwh
+		summarizeBy: sum
+		sourceColumn: kwh
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column has_gap
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 333289da-34b9-42b4-a2d4-98350ff65991
+		sourceLineageTag: has_gap
+		summarizeBy: none
+		sourceColumn: has_gap
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_sk
+		dataType: string
+		lineageTag: 97e57f2d-a50c-46df-b3a2-d344a21506f6
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_heatup = entity
+		mode: directLake
+		source
+			entityName: fact_heatup
+			schemaName: gold
+			expressionSource: 'DirectLake - lh_energy'
+
