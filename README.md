@@ -90,7 +90,7 @@ Updated at every step. Phases follow the project plan; ✅ done, 🔄 in progres
 | 1 | Fabric platform: capacity, workspace, Git integration | ✅ |
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
-| 4 | Direct Lake semantic model and Power BI report | 🔄 next |
+| 4 | Direct Lake semantic model and Power BI report | 🔄 model and first measures |
 | 5 | Stretch: Eventhouse/KQL, Activator alert, deployment pipeline, CI/CD | ⬜ |
 | 6 | Packaging: README, screenshots, demo video | ⬜ |
 
@@ -139,7 +139,17 @@ retries and one shared Spark session, monitored in the Fabric Monitoring hub. Ma
 tables with OPTIMIZE and V-Order (the live table went from about 400 small files to 1) and removes unreferenced files
 with VACUUM after 7 days.
 
-**Next.** The Direct Lake semantic model on gold, DAX measures, row-level security by hall, and the report.
+**Semantic model (in progress).** `sm_am_energy` is a Direct Lake on OneLake model over the ten gold tables:
+13 many-to-one relationships (facts to machine versions through the SCD2 key, to date, slot, tariff and state),
+`dim_date` marked as date table, first DAX measures for energy, cost, price and peak share. The pipeline reframes it
+once gold is complete, so reports never mix old and new tables.
+
+Checking the first measures per month exposed a bug: when the live simulator started, every meter restarted at its
+initial counter value, and gold booked each drop as a meter swap, inventing about 217,000 kWh in October. Counter
+jumps are now checked for plausibility; impossible ones count as discontinuities (10, one per meter at the
+history-to-live boundary) instead of energy, and the real meter swap is still found.
+
+**Next.** Remaining measures, row-level security by hall, and the report.
 
 ### How code reaches Fabric
 

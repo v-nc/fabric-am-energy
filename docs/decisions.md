@@ -103,6 +103,13 @@ interval's energy is unknown (not booked) and counted on the data-quality page. 
 restarted every meter at its initial value after the 12-month history: the old rule booked each restart as a meter
 swap and invented about 217,000 kWh in October.
 
+**29. The semantic model is reframed once, explicitly, at the end of the pipeline.** Direct Lake reads a frozen
+version (frame) of each Delta table; a refresh only moves the frame to the latest versions, in seconds, without
+copying data. Automatic reframing is off because `nb_gold` writes its ten tables one after another, and a reframe in
+the middle would mix new facts with old dimensions. `pl_daily` reframes with a Semantic model refresh activity after
+gold succeeds. Its connection uses OAuth with my user, fine for a portfolio; production would use a service principal
+or the workspace identity.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all
