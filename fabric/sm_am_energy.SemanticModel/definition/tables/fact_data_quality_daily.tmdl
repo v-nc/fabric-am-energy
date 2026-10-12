@@ -2,6 +2,71 @@ table fact_data_quality_daily
 	lineageTag: 92905162-7bed-4ff3-bbfc-41dabc9a3a64
 	sourceLineageTag: [gold].[fact_data_quality_daily]
 
+	measure Rejected_readings = ```
+			
+			    SUM ( fact_data_quality_daily[rejected_bad_status] )
+			        + SUM ( fact_data_quality_daily[rejected_spike] )
+			        + SUM ( fact_data_quality_daily[rejected_implausible_power] )
+			        + SUM ( fact_data_quality_daily[rejected_missing_value] )
+			        + SUM ( fact_data_quality_daily[rejected_negative_value] )
+			```
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: fc2043b0-fe42-4b30-82f1-1968603f8dc5
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+	measure Data_completeness =
+			
+			DIVIDE (
+			    SUM ( fact_data_quality_daily[minutes_covered] ),
+			    1440 * COUNTROWS ( dim_date ) * DISTINCTCOUNT ( dim_machine[machine_id] )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Data quality
+		lineageTag: 8352b9d3-b486-4b68-91c6-d499253b47f6
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure DQ_events_received = SUM ( fact_data_quality_daily[events_received] )
+		formatString: 0
+		lineageTag: c3b99bb4-0841-4bbc-a3e9-48edd325166c
+
+		changedProperty = Name
+
+	measure DQ_duplicates_removed = SUM ( fact_data_quality_daily[duplicates_removed] )
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: c2cc950c-17a6-4c68-b9b9-9bb8f0f18809
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+	measure DQ_late_events = SUM ( fact_data_quality_daily[late_events] )
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: fdb8fe03-4fde-42e4-b65e-7ad31ee24731
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+	measure DQ_counter_discontinuities = SUM ( fact_data_quality_daily[counter_discontinuities] )
+		formatString: 0
+		displayFolder: Data quality
+		lineageTag: 23be76dd-f12e-49ce-ade8-b66c4bc2b804
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
 	column meter_id
 		dataType: string
 		lineageTag: 1da2f301-3e10-434b-918b-09309bcae4d7
@@ -19,15 +84,20 @@ table fact_data_quality_daily
 		summarizeBy: none
 		sourceColumn: date_key
 
+		changedProperty = DisplayFolder
+
 		annotation SummarizationSetBy = Automatic
 
 	column events_received
 		dataType: int64
 		formatString: 0
+		displayFolder: Data quality
 		lineageTag: 908cc566-c932-41a4-a0db-35e4d9784c49
 		sourceLineageTag: events_received
 		summarizeBy: sum
 		sourceColumn: events_received
+
+		changedProperty = DisplayFolder
 
 		annotation SummarizationSetBy = Automatic
 
@@ -64,10 +134,13 @@ table fact_data_quality_daily
 	column late_events
 		dataType: int64
 		formatString: 0
+		displayFolder: Data quality
 		lineageTag: 0fbc7978-84f8-47ca-8cfc-232fcd339726
 		sourceLineageTag: late_events
 		summarizeBy: sum
 		sourceColumn: late_events
+
+		changedProperty = DisplayFolder
 
 		annotation SummarizationSetBy = Automatic
 
@@ -165,10 +238,13 @@ table fact_data_quality_daily
 	column duplicates_removed
 		dataType: int64
 		formatString: 0
+		displayFolder: Data quality
 		lineageTag: 0936618a-7821-4f7e-bbf5-82031c88a382
 		sourceLineageTag: duplicates_removed
 		summarizeBy: sum
 		sourceColumn: duplicates_removed
+
+		changedProperty = DisplayFolder
 
 		annotation SummarizationSetBy = Automatic
 
@@ -207,10 +283,13 @@ table fact_data_quality_daily
 	column counter_discontinuities
 		dataType: int64
 		formatString: 0
+		displayFolder: Data quality
 		lineageTag: 1e71355d-4fb6-42a2-9e4a-685113351519
 		sourceLineageTag: counter_discontinuities
 		summarizeBy: sum
 		sourceColumn: counter_discontinuities
+
+		changedProperty = DisplayFolder
 
 		annotation SummarizationSetBy = Automatic
 

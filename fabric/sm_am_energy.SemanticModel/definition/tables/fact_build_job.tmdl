@@ -2,6 +2,52 @@ table fact_build_job
 	lineageTag: 2caa58ca-4609-48f6-b7e4-0f5e82132077
 	sourceLineageTag: [gold].[fact_build_job]
 
+	measure Build_jobs = COUNTROWS ( fact_build_job )
+		formatString: 0
+		displayFolder: Jobs
+		lineageTag: 8e1c1a91-a161-4c0f-8682-0f10113fc872
+
+		changedProperty = Name
+
+		changedProperty = DisplayFolder
+
+	measure kWh_per_job = DIVIDE ( SUM ( fact_build_job[job_kwh] ), [Build_jobs] )
+		formatString: 0.0
+		displayFolder: Jobs
+		lineageTag: a1da55ac-4ab9-441c-ba6f-967ad8f63a7d
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure Measure
+		displayFolder: Jobs
+		lineageTag: 349e95ee-6790-4612-8f6e-16fe55767fec
+
+		changedProperty = DisplayFolder
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Measure 2'
+		displayFolder: Jobs
+		lineageTag: d98c76ef-0616-4525-a475-b8df925596cb
+
+		changedProperty = DisplayFolder
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure kWh_per_build_h = DIVIDE ( SUM ( fact_build_job[build_kwh] ), SUM ( fact_build_job[build_h] ) )
+		displayFolder: Jobs
+		lineageTag: 021b81d8-5e8e-4cba-82f0-39d10d9e92e8
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
 	column job_id
 		dataType: string
 		lineageTag: 8ceac42c-f5dc-4dce-9253-21812249a865
@@ -110,14 +156,18 @@ table fact_build_job
 
 	column kwh_per_build_hour
 		dataType: double
+		formatString: 0.0
+		displayFolder: Jobs
 		lineageTag: 4010b553-64ee-493f-8256-72779709f374
 		sourceLineageTag: kwh_per_build_hour
 		summarizeBy: sum
 		sourceColumn: kwh_per_build_hour
 
-		annotation SummarizationSetBy = Automatic
+		changedProperty = DisplayFolder
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
 
 	column has_gap
 		dataType: boolean

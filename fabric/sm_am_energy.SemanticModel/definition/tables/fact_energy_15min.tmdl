@@ -3,25 +3,37 @@ table fact_energy_15min
 	sourceLineageTag: [gold].[fact_energy_15min]
 
 	measure Energy_kWh = SUM ( fact_energy_15min[kwh] )
+		formatString: #,0
+		displayFolder: Energy
 		lineageTag: fcdc6a99-3351-445e-add0-8738b3c3813a
 
 		changedProperty = Name
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		changedProperty = DisplayFolder
+
+		changedProperty = FormatString
 
 	measure Energy_cost = SUM ( fact_energy_15min[cost] )
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		displayFolder: Energy
 		lineageTag: 05ec2c22-1185-4eb3-b669-f33c12a2ec73
 
 		changedProperty = Name
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		changedProperty = DisplayFolder
+
+		changedProperty = FormatString
 
 	measure Avg_price_per_kWh = DIVIDE ( [Energy_cost], [Energy_kWh] )
+		formatString: #,0.000\ "€";-#,0.000\ "€";#,0.000\ "€"
+		displayFolder: Energy
 		lineageTag: 3e8b34ef-b3f4-4592-870f-8d8a78195b07
 
 		changedProperty = Name
 
-		annotation PBI_FormatHint = {"isGeneralNumber":true}
+		changedProperty = DisplayFolder
+
+		changedProperty = FormatString
 
 	measure Peak_share = DIVIDE ( CALCULATE ( [Energy_kWh], dim_tariff[tariff_band] = "peak" ), [Energy_kWh] )
 		lineageTag: ac30fb1b-befa-4dea-9dc8-11eb53ec7b07
@@ -29,6 +41,27 @@ table fact_energy_15min
 		changedProperty = Name
 
 		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Energy_kWh_PM = CALCULATE ( [Energy_kWh], DATEADD ( dim_date[date], -1, MONTH ) )
+		displayFolder: Energy
+		lineageTag: 0a6367af-d5c7-4f20-90c3-1ca3161d2ea4
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Energy_vs_PM = DIVIDE ( [Energy_kWh] - [Energy_kWh_PM], [Energy_kWh_PM] )
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Energy
+		lineageTag: 3f9788d6-7db9-410e-970a-e67cc5d63a26
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
 
 	column machine_id
 		dataType: string

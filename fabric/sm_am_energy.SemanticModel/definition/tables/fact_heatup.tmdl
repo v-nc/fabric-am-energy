@@ -2,6 +2,46 @@ table fact_heatup
 	lineageTag: 88e10347-2b84-4b3c-8e31-72418b5e6da2
 	sourceLineageTag: [gold].[fact_heatup]
 
+	measure Heat_ups = COUNTROWS ( fact_heatup )
+		formatString: 0
+		displayFolder: Heat-ups
+		lineageTag: 5a6f5080-6a4d-4853-a8fe-a82d7eea75f6
+
+		changedProperty = Name
+
+		changedProperty = DisplayFolder
+
+	measure Heat_up_overruns = CALCULATE ( [Heat_ups], fact_heatup[is_overrun] = TRUE () )
+		formatString: 0
+		displayFolder: Heat-ups
+		lineageTag: 71963abf-e39d-4dff-8d8f-6712718d3690
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+	measure Heat_up_overrun_rate = DIVIDE ( [Heat_up_overruns], [Heat_ups] )
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Heat-ups
+		lineageTag: 437ecb8c-b509-499e-b26e-bdd6c5631a12
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure Avg_heat_up_h = AVERAGE ( fact_heatup[duration_h] )
+		formatString: 0.0
+		displayFolder: Heat-ups
+		lineageTag: cb8735aa-28ee-4226-9265-3f31e5faf91c
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
 	column machine_id
 		dataType: string
 		isHidden

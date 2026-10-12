@@ -2,6 +2,43 @@ table fact_state_energy
 	lineageTag: 91b9ca00-b858-493b-9a64-b1c25685a27b
 	sourceLineageTag: [gold].[fact_state_energy]
 
+	measure State_hours = SUM ( fact_state_energy[hours] )
+		displayFolder: States
+		lineageTag: de808d44-763d-43cd-b533-ab5965d15a53
+
+		changedProperty = Name
+
+		changedProperty = DisplayFolder
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Idle_share =
+			
+			DIVIDE (
+			    CALCULATE ( [State_hours], dim_state[state] = "idle" ),
+			    CALCULATE ( [State_hours], dim_state[state] <> "unknown" )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: States
+		lineageTag: 5defbeab-e99b-46e6-84fa-de2195ce1d25
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
+	measure Idle_energy_kWh = CALCULATE ( SUM ( fact_state_energy[kwh] ), dim_state[state] = "idle" )
+		formatString: #,0.00
+		displayFolder: States
+		lineageTag: 06e83e6c-4935-4b00-8c3a-a0f231d2d5b0
+
+		changedProperty = DisplayFolder
+
+		changedProperty = Name
+
+		changedProperty = FormatString
+
 	column machine_id
 		dataType: string
 		isHidden
