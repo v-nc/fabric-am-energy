@@ -130,7 +130,69 @@
         "name": "Semantic model refresh",
         "dependsOn": [
           {
+            "activity": "mart",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "RefreshDataflow",
+        "typeProperties": {
+          "dataflowId": "51659a76-43a4-9a70-4f86-7ec07c520219",
+          "workspaceId": "00000000-0000-0000-0000-000000000000",
+          "notifyOption": "NoNotification",
+          "dataflowType": "DataflowFabric",
+          "executeMashupQueriesOnly": true
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 120,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "prices",
+        "dependsOn": []
+      },
+      {
+        "type": "SqlServerStoredProcedure",
+        "typeProperties": {
+          "storedProcedureName": "[mart].[usp_refresh_energy_cost]"
+        },
+        "connectionSettings": {
+          "name": "wh_am_energy",
+          "properties": {
+            "type": "DataWarehouse",
+            "typeProperties": {
+              "artifactId": "3911f207-761d-a39b-447f-96a6c66d67f4",
+              "endpoint": "pryhkamp5gfu7jrym6b5y3ebci-yc4b6gtb6qsubk4jubf47yyhky.datawarehouse.fabric.microsoft.com",
+              "workspaceId": "00000000-0000-0000-0000-000000000000"
+            },
+            "externalReferences": {
+              "connection": "a0796f3b-3c63-407a-9d24-dde4d1801586"
+            },
+            "annotations": []
+          }
+        },
+        "policy": {
+          "timeout": "0.12:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureInput": false,
+          "secureOutput": false
+        },
+        "name": "mart",
+        "dependsOn": [
+          {
             "activity": "gold",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          },
+          {
+            "activity": "prices",
             "dependencyConditions": [
               "Succeeded"
             ]
