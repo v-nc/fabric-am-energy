@@ -127,6 +127,53 @@ workspace with Update from Git. Page ids stay stable, and the pages remain edita
 bound, so averages and the scatter of hours vs energy would be distorted (94 of 1,716 jobs, 6 of 1,719 heat-ups).
 They stay in gold with `has_gap`, and the filter is visible in the report's filter pane.
 
+## Real-time path
+
+**33. A hot path in an Eventhouse next to the Lakehouse, fed by the same Eventstream.** The Eventstream has two
+destinations: the Lakehouse (bronze, for the history and the semantic model) and the KQL database `eh_am_energy`
+(table `meter_events`, events queryable within seconds). The Eventhouse answers "what is happening now" for the
+Real-Time Dashboard and the alerts and keeps 30 days, 7 of them in hot cache; the Lakehouse keeps everything. Reading
+live data from bronze instead would mean waiting for files to land, the pipeline to run and the model to be
+reframed: minutes or hours instead of seconds.
+
+**34. The real-time path deduplicates like silver, with a materialized view.** `readings_dedup` keeps one row per
+(meter, measurement time) with `take_any(*)` and is maintained by the Eventhouse as data arrives. Dashboard tiles and
+alerts read the view; the raw table keeps the duplicates, which the freshness tile counts (the gateway resends a share
+of events on purpose). The view is created with `.create async ... with (backfill=true)` because the table already
+held data.
+
+**35. Real-time logic lives in stored KQL functions, versioned in `kql/setup.kql`.** `CurrentState`, `StateRuns`,
+`HeatupRuns`, `OverrunStatus`, `ParkPower` and `Freshness`: tiles and the alert call a function instead of carrying
+their own copy of the logic, the script can be re-run, and `scripts/kql.py` runs the same queries from the terminal.
+State runs are found with window functions (`prev`, `row_cumsum`) ordered by measurement time, so late and replayed
+events land in the right run. Exact distinct counts use `count_distinct`: `dcount` is a HyperLogLog estimate, and in
+the freshness tile it once reported more distinct measurements than rows.
+
+**36. A demo mode that never reaches the history.** For a live demo the simulator runs 30 times faster with a 50 %
+overrun probability (environment overrides, validated and unit-tested), so an alert happens within minutes instead of
+every two days or so. Meanwhile the Eventstream's Lakehouse destination is paused, so no demo event reaches bronze or gold; it is
+resumed afterwards with the start option "Now", which skips what arrived during the pause. The KQL functions take a
+`scale` argument that converts demo time back to plant hours.
+
+**37. The heat-up alert reads a KQL query and fires when `overrun` changes to true.** The first rule watched the raw
+stream with "state is equal to heat_up". That is a state condition, so it fires on every matching event: 91 e-mails
+in a few minutes, until Activator throttled the recipient. "When it has been true for 5 minutes" still fires on every
+event once the five minutes have passed (13 e-mails for a single overrun in Activator's preview). The rule now runs
+`OverrunStatus()` every minute, one row per 3D printer with the current heat-up duration in plant hours, and fires
+when `overrun` changes to true for a `machine_id`: one e-mail per overrun, with the exact 2.6 h threshold, on
+deduplicated data and measurement time. The price is up to a minute of extra latency and a small query per minute,
+negligible next to a 2.6-hour threshold. Firing once per episode always comes from a transition condition ("becomes
+true", "changes to", "increases above"), never from a state condition. One more trap: the alert wizard typed every
+column of the query as text, so the boolean arrives as "0"/"1" and a logical "becomes true" never matched. The rule
+uses the text condition "changes to 1"; Activator's projected activations on the past hour (zero before the fix,
+exactly one per overrun after) showed the difference before any e-mail was due.
+
+**38. Pipeline failures are alerted through Fabric job events.** An Activator rule receives `ItemJobFailed` events
+for `pl_daily` from the Real-Time hub and sends an e-mail. Job events also cover cancelled runs and runs that fail
+before their first activity, which an "on failure" branch inside the pipeline would miss. It was tested by cancelling
+a run: the e-mail went out the same second. Activator runs on the capacity, so failures while the capacity is paused
+(the nightly schedule) cannot be alerted; a production capacity runs continuously.
+
 ## Platform
 
 **21. One Lakehouse (`lh_energy`) with bronze, silver and gold schemas, not three Lakehouses.** One team owns all

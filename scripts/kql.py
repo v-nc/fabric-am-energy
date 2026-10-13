@@ -3,17 +3,20 @@
     python3 scripts/kql.py query "meter_events | count"
     python3 scripts/kql.py mgmt  ".show tables"
     python3 scripts/kql.py mgmt  @kql/setup.kql        # a file; commands separated by blank lines
+
+Another Eventhouse: set KUSTO_URI to its Query URI (Eventhouse overview in Fabric) and KUSTO_DATABASE if renamed.
 """
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import urllib.error
 import urllib.request
 
-CLUSTER = "https://trd-2czftksj0qxw9pe2x5.z1.kusto.fabric.microsoft.com"
-DATABASE = "eh_am_energy"
+CLUSTER = os.environ.get("KUSTO_URI", "https://trd-2czftksj0qxw9pe2x5.z1.kusto.fabric.microsoft.com")
+DATABASE = os.environ.get("KUSTO_DATABASE", "eh_am_energy")
 
 
 def token() -> str:

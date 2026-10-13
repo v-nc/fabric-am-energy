@@ -45,6 +45,18 @@
     | project machine_id, run_start, run_last, duration_h, overrun, is_running
 }
 
+// Source of the heat-up alert. One row per 3D printer, so that Activator sees overrun go from false to true
+// exactly once per overrun. A rule on the raw stream (state "is equal to" heat_up, "when it has been true for"
+// 5 minutes) sends one action per event once the duration is reached: 13 e-mails for a single overrun.
+.create-or-alter function with (folder="realtime", docString="Current heat-up status per 3D printer: heat-up duration in plant hours and overrun flag, one row per 3D printer") OverrunStatus(lookback:timespan = 12h, scale:real = 1.0, threshold_h:real = 2.6) {
+    let heatups = HeatupRuns(lookback, scale, threshold_h) | where is_running | project machine_id, heatup_start = run_start, heatup_h = duration_h;
+    CurrentState()
+    | join kind=leftouter heatups on machine_id
+    | extend heatup_h = coalesce(heatup_h, 0.0)
+    | extend overrun = heatup_h > threshold_h
+    | project machine_id, state, heatup_start, heatup_h, overrun, job_id, power_kw, last_reading
+}
+
 .create-or-alter function with (folder="realtime", docString="Park power in tumbling windows: average per 3D printer and window, summed over the park") ParkPower(lookback:timespan = 1h, window:timespan = 1m) {
     readings_dedup
     | extend ts = todatetime(ts_source)
@@ -53,12 +65,15 @@
     | summarize park_kw = round(sum(kw), 1), machines = dcount(machine_id) by window_start
 }
 
+// count_distinct, not dcount: dcount is a HyperLogLog estimate (about 1 % off at a few thousand keys), which is
+// larger than the real number of duplicates and can even come out above the number of rows.
 .create-or-alter function with (folder="realtime", docString="Freshness of the live data: events, duplicates and latency from measurement to Eventstream") Freshness(lookback:timespan = 15m) {
     meter_events
     | extend ts = todatetime(ts_source)
     | where ts > ago(lookback)
     | extend latency_s = datetime_diff('millisecond', EventEnqueuedUtcTime, ts) / 1000.0
-    | summarize events = count(), measurements = dcount(strcat(meter_id, "|", ts_source)), last_measurement = max(ts),
+    | summarize events = count(), measurements = count_distinct(strcat(meter_id, "|", ts_source)), last_measurement = max(ts),
                 p50_latency_s = percentile(latency_s, 50), p95_latency_s = percentile(latency_s, 95)
-    | extend duplicates = events - measurements, age_s = datetime_diff('second', now(), last_measurement)
+    | extend duplicates = events - measurements, age_s = datetime_diff('second', now(), last_measurement),
+             p50_latency_s = round(p50_latency_s, 1), p95_latency_s = round(p95_latency_s, 1)
 }

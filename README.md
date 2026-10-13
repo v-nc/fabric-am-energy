@@ -19,9 +19,11 @@ versioned in this repository.
   subscribes, buffers in SQLite (store-and-forward) and streams to Fabric over the Event Hubs protocol.
 - **Fabric:** Eventstream → Lakehouse (bronze, silver, gold) → Direct Lake semantic model → five-page Power BI report,
   orchestrated by a daily pipeline with table maintenance, on a paid F4 capacity that is paused when idle.
-- **Engineering:** transformations are a tested Python package (64 automated tests in total) deployed to Fabric as a
+- **Real time:** the same Eventstream feeds an Eventhouse. KQL functions drive a Real-Time Dashboard and Activator
+  e-mail alerts: one per heat-up overrun (the 2019 alert, live) and one per failed run of the daily pipeline.
+- **Engineering:** transformations are a tested Python package (67 automated tests in total) deployed to Fabric as a
   wheel; every Fabric item, including the semantic model and the report, is stored here as text through Git
-  integration; 32 [design decisions](docs/decisions.md) are written down.
+  integration; 38 [design decisions](docs/decisions.md) are written down.
 - **Checked against the truth:** the simulator injects faults and records them in a ground-truth file. The pipeline
   removed exactly the 10,522 injected duplicates, found 100 of 108 injected heat-up overruns with no false alarm, and
   reports 97.7 % data completeness.
@@ -56,9 +58,15 @@ flowchart LR
     sm["Direct Lake<br/>semantic model"]
     rpt["Power BI report"]
     pl["pipeline pl_daily<br/>silver → gold → maintenance<br/>→ model reframe"]
+    kql[("Eventhouse<br/>KQL database<br/>30 days")]
+    rtd["Real-Time<br/>Dashboard"]
+    act["Activator<br/>e-mail alerts"]
     es --> bronze
     files --> bronze --> silver --> gold --> sm --> rpt
     pl -.-> silver
+    es --> kql --> rtd
+    kql -- "OverrunStatus()<br/>every minute" --> act
+    pl -. "job events" .-> act
   end
 
   gw -- "JSON events<br/>Event Hubs protocol" --> es
@@ -105,6 +113,18 @@ The daily pipeline: silver, then gold, then table maintenance and the semantic m
   PBIR JSON, validated against Microsoft's schemas and deployed from Git.
 - Row-level security roles by hall (enforcement is an open point, see below).
 
+**Real-time analytics and alerting**
+- The Eventstream fans out to an Eventhouse next to the Lakehouse: seconds for "what is happening now", the
+  Lakehouse for the history (30 days' retention in the Eventhouse, 7 in hot cache).
+- Deduplication in a materialized view, on the same key as silver. Stored KQL functions, versioned in
+  [`kql/setup.kql`](kql/setup.kql): current state per 3D printer, state runs with window functions (`prev`,
+  `row_cumsum`), heat-ups and overruns, park power in tumbling windows, and freshness (p50 2.5 s and p95 3.6 s from
+  measurement to Eventstream).
+- A Real-Time Dashboard refreshed every 30 seconds.
+- Activator alerts by e-mail: heat-up overruns from a KQL query with a transition condition (one e-mail per overrun;
+  a first version on the raw stream sent one per event), and failed `pl_daily` runs from Fabric job events.
+- A demo mode (30 times faster, more overruns) kept out of the history by pausing the Lakehouse destination.
+
 **Platform and operations**
 - Paid F4 capacity created and paused by script, with a cost budget; Spark pool sized for F4 (one node per session)
   after hitting the capacity's Spark limit.
@@ -133,7 +153,7 @@ the Fabric run compare the pipeline's output with it.
 
 ## Design decisions
 
-All 32 are in [docs/decisions.md](docs/decisions.md), each with the reason and the alternative. A few that shape the
+All 38 are in [docs/decisions.md](docs/decisions.md), each with the reason and the alternative. A few that shape the
 project:
 
 - **Custom endpoint, not MQTT** (1): GA, no public broker, standard Event Hubs SDK.
@@ -145,6 +165,8 @@ project:
 - **Gold rebuilt in full** (23): trivially correct at this volume; recompute touched days if it grows.
 - **Explicit reframe of the Direct Lake model** (29): reports never mix new facts with old dimensions.
 - **Coverage grid for data quality** (30): completeness stays right when machines change halls.
+- **Hot path in an Eventhouse** (33), deduplicated like silver (34).
+- **Alerts on transitions, not states** (37): one e-mail per heat-up overrun instead of one per event.
 
 ## Rebuild it
 
@@ -153,7 +175,7 @@ and a Microsoft Entra tenant where you are Fabric administrator, and a GitHub fo
 
 **Local part (no cloud):**
 ```bash
-cd edge && npm ci && npm test            # 34 tests: simulator, gateway, history generator
+cd edge && npm ci && npm test            # 37 tests: simulator, gateway, history generator, demo mode
 npm run history                          # 12 months of history into data/history (about 150 MB)
 cd ../spark && uv sync && uv run pytest  # 30 tests, including end-to-end runs against the ground truth
 cd .. && cp .env.example .env && docker compose up --build   # simulator + gateway, writing JSON lines locally
@@ -171,18 +193,24 @@ docker compose kill -s USR1 gateway      # toggle a simulated network outage
 5. Run `nb_load_history_bronze`, then `pl_daily`.
 6. For live data: copy the Eventstream custom endpoint's connection string into `.env` with `SINK=eventhubs`, then
    `docker compose up`.
+7. Real-time path: with the Eventhouse `eh_am_energy` receiving the stream into `meter_events`, run
+   `python3 scripts/kql.py mgmt @kql/setup.kql` (set `KUSTO_URI` to the Eventhouse's query URI). For a demo with
+   alerts within minutes, pause the Eventstream's Lakehouse destination first, then set the demo variables from
+   `.env.example` (decision 36).
 
-**What isn't automated yet (honest list):** a new workspace has new item ids, so four things need rebinding by hand:
-the notebooks' default `lakehouse_id` parameter, the Direct Lake source in `expressions.tmdl`, the pipeline's
-semantic model refresh activity (and its connection), and the Eventstream key. In production these would come from a
-Variable Library or deployment rules (fabric-cicd).
+**What isn't automated yet (honest list):** a new workspace has new item ids, so these need rebinding by hand: the
+notebooks' default `lakehouse_id` parameter, the Direct Lake source in `expressions.tmdl`, the pipeline's semantic
+model refresh activity (and its connection), the Eventstream key, the Real-Time Dashboard's data source, and the
+Activator's sources and e-mail recipient. In production these would come from a Variable Library or deployment rules
+(fabric-cicd).
 
 ## Costs
 
 The Fabric trial wasn't available for a brand-new tenant, so the project runs on a paid **F4** capacity
 (pay-as-you-go, about €0.67 per hour in Sweden Central), resumed only while working. Total compute so far: about
-**€8**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
-in the Monitoring hub, and failure alerting is the next step.
+**€10**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
+in the Monitoring hub. Activator runs on the capacity too, so those night-time failures are not e-mailed; failures
+while the capacity runs are (decision 38).
 
 ## Limits, and what production would add
 
@@ -193,7 +221,9 @@ in the Monitoring hub, and failure alerting is the next step.
   managed identity instead of a SAS key.
 - **Platform:** a capacity sized from the Capacity Metrics app and running continuously; dev and prod workspaces with
   deployment pipelines or fabric-cicd from GitHub Actions; a service principal or workspace identity instead of a
-  personal OAuth connection; alerts on pipeline failures.
+  personal OAuth connection; alerts to an on-call channel rather than one mailbox.
+- **Real time:** the dashboard shows raw power values, including the spikes that silver quarantines, and the overrun
+  alert is evaluated once a minute.
 - **Scale:** gold would recompute only the days touched by new data instead of rebuilding in full.
 
 ## DP-700 skill mapping
@@ -201,8 +231,8 @@ in the Monitoring hub, and failure alerting is the next step.
 | Skill area | Covered here | Next |
 |---|---|---|
 | Implement and manage an analytics solution | Workspace and Spark settings, Environment, Git integration, pipeline orchestration, schedule and parameters, semantic model security roles, capacity management | Deployment pipeline, workspace roles and item permissions |
-| Ingest and transform data | Eventstream, Spark Structured Streaming, PySpark and Spark SQL, full and incremental loads, deduplication, late and missing data, SCD type 2, windowing in Spark | Eventhouse and KQL, Dataflow Gen2, Warehouse, a materialized lake view |
-| Monitor and optimize | Monitoring hub, Eventstream data insights, OPTIMIZE / V-Order / VACUUM, Spark pool sizing and high concurrency, Direct Lake framing | Activator alerts on failures and on heat-up overruns |
+| Ingest and transform data | Eventstream, Spark Structured Streaming, PySpark and Spark SQL, full and incremental loads, deduplication, late and missing data, SCD type 2, windowing in Spark, Eventhouse and KQL (materialized view, window functions, stored functions) | Dataflow Gen2, Warehouse, a materialized lake view |
+| Monitor and optimize | Monitoring hub, Eventstream data insights, OPTIMIZE / V-Order / VACUUM, Spark pool sizing and high concurrency, Direct Lake framing, Activator alerts on pipeline failures (job events) and heat-up overruns (KQL) | Capacity Metrics app |
 
 ## Repository layout
 
@@ -211,9 +241,10 @@ in the Monitoring hub, and failure alerting is the next step.
 | `config/` | Simulation assumptions (power, timing, fault rates) |
 | `edge/` | TypeScript: OPC UA simulator, edge gateway, history generator, shared event schema |
 | `spark/` | Silver and gold transformations as a Python package, tested locally |
-| `fabric/` | Fabric item definitions written by Git integration: notebooks, pipeline, Environment, Eventstream, Lakehouse, semantic model (TMDL), report (PBIR) |
+| `fabric/` | Fabric item definitions written by Git integration: notebooks, pipeline, Environment, Eventstream, Lakehouse, semantic model (TMDL), report (PBIR), Eventhouse, Real-Time Dashboard, Activator |
+| `kql/` | Eventhouse setup: retention, the deduplicating materialized view, the real-time functions |
 | `model/` | Star schema and DAX measures, as designed before building |
-| `scripts/` | Capacity, workspace and Git setup; history upload |
+| `scripts/` | Capacity, workspace and Git setup; history upload; KQL client |
 | `docs/` | Design decisions, screenshots, report PDF |
 
 ## Status
@@ -225,7 +256,7 @@ in the Monitoring hub, and failure alerting is the next step.
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
 | 4 | Direct Lake semantic model and Power BI report | ✅ (RLS enforcement open) |
-| 5 | Eventhouse/KQL and Activator alerts, Dataflow Gen2 and Warehouse, CI | 🔄 next |
+| 5 | Eventhouse/KQL, Real-Time Dashboard and Activator alerts; then Dataflow Gen2 and Warehouse, CI | 🔄 real-time path done; Dataflow Gen2, Warehouse and CI next |
 | 6 | Packaging: README, screenshots, demo video | 🔄 first version done; video after phase 5 |
 
 ## License
