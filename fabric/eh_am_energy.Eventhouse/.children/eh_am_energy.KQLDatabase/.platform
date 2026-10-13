@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "KQLDatabase",
+    "displayName": "eh_am_energy"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "a03f115a-72d3-97ea-403d-4a6f9700b48e"
+  }
+}

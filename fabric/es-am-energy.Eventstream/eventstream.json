@@ -9,6 +9,128 @@
   ],
   "destinations": [
     {
+      "id": "5ce9a1c4-19fd-49ae-a116-6eccd5b5ebf7",
+      "name": "eh-raw",
+      "type": "Eventhouse",
+      "properties": {
+        "dataIngestionMode": "ProcessedIngestion",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "itemId": "a03f115a-72d3-97ea-403d-4a6f9700b48e",
+        "databaseName": "eh_am_energy",
+        "tableName": "meter_events",
+        "inputSerialization": {
+          "type": "Json",
+          "properties": {
+            "encoding": "UTF8"
+          }
+        }
+      },
+      "inputNodes": [
+        {
+          "name": "es-am-energy-stream"
+        }
+      ],
+      "inputSchemas": [
+        {
+          "name": "es-am-energy-stream",
+          "schema": {
+            "columns": [
+              {
+                "name": "schema_version",
+                "type": "BigInt",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "machine_id",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "meter_id",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "seq",
+                "type": "BigInt",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "ts_source",
+                "type": "DateTime",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "ts_edge",
+                "type": "DateTime",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "state",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "job_id",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "l1_a",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "l2_a",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "l3_a",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "voltage_v",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "power_kw",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "energy_kwh_total",
+                "type": "Float",
+                "fields": null,
+                "items": null
+              },
+              {
+                "name": "opc_status",
+                "type": "Nvarchar(max)",
+                "fields": null,
+                "items": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
       "id": "69700d79-d8d6-4027-87dd-84c6a75379e2",
       "name": "lh-bronze",
       "type": "Lakehouse",

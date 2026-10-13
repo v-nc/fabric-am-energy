@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "KQLDashboard",
+    "displayName": "rtd_am_energy",
+    "description": "rtd_am_energy"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "0dd00800-eed3-8199-4a13-8917ac14b09f"
+  }
+}

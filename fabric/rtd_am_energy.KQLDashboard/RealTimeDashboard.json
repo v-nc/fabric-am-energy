@@ -1,0 +1,287 @@
+{
+  "schema_version": 86,
+  "flavor": "RTDashboard_Regular",
+  "changeDetection": {
+    "kind": "liveUpdates",
+    "fallbackRefreshRate": "5m",
+    "minRefreshRate": "30s"
+  },
+  "tiles": [
+    {
+      "id": "9ef26b1c-c1a0-4ad7-adb2-aaec167583c0",
+      "title": "Machine states now",
+      "visualType": "table",
+      "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 9,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "883835cb-41ab-43e1-bdd8-84ee2e3d67ac"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    },
+    {
+      "id": "d0a3d5d2-f4e5-422b-9dea-9e096599d49e",
+      "title": "Park power, 1-minute windows (kW)",
+      "visualType": "line",
+      "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
+      "layout": {
+        "x": 0,
+        "y": 7,
+        "width": 24,
+        "height": 4
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "aca7b5a4-6011-4274-b0a1-09203f9b3f74"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "seriesColors": {},
+        "hideLegend": false,
+        "legendLocation": "left",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "forceAxisTicks": false,
+        "crossFilter": [],
+        "drillthrough": []
+      }
+    },
+    {
+      "id": "3c67a0d0-857d-427d-b75b-6b22e03c1c60",
+      "title": "Power per 3D printer, last 30 min (kW)",
+      "visualType": "line",
+      "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
+      "layout": {
+        "x": 0,
+        "y": 11,
+        "width": 24,
+        "height": 8
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "92831b65-6745-4654-bb93-b85c659131a3"
+      },
+      "visualOptions": {
+        "multipleYAxes": {
+          "base": {
+            "id": "-1",
+            "label": "",
+            "columns": [],
+            "yAxisMaximumValue": null,
+            "yAxisMinimumValue": null,
+            "yAxisScale": "linear",
+            "horizontalLines": []
+          },
+          "additional": [],
+          "showMultiplePanels": false
+        },
+        "seriesColors": {},
+        "hideLegend": false,
+        "legendLocation": "left",
+        "xColumnTitle": "",
+        "xColumn": null,
+        "yColumns": null,
+        "seriesColumns": null,
+        "xAxisScale": "linear",
+        "verticalLine": "",
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "forceAxisTicks": false,
+        "crossFilter": [],
+        "drillthrough": []
+      }
+    },
+    {
+      "id": "24901298-3316-4fd6-8801-5e75e7094908",
+      "title": "Heat-ups (plant hours; demo runs 30× faster)",
+      "visualType": "table",
+      "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
+      "layout": {
+        "x": 9,
+        "y": 0,
+        "width": 15,
+        "height": 7
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "c2efa331-786e-46a1-9867-bf32d91e8ed9"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": [
+          {
+            "id": "4ba769ca-6915-4e69-bfd9-ade9e389a0be",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "overrun",
+                "values": [
+                  "true"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "table"
+          }
+        ]
+      }
+    },
+    {
+      "id": "4e51b991-09a1-4379-ab83-bb5ab27b0f3c",
+      "title": "Live data freshness",
+      "visualType": "table",
+      "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
+      "layout": {
+        "x": 0,
+        "y": 19,
+        "width": 14,
+        "height": 4
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "8c39e496-6b71-46ba-b682-4c3c51128ff0"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": true,
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "crossFilter": [],
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": []
+      }
+    }
+  ],
+  "baseQueries": [],
+  "parameters": [
+    {
+      "kind": "duration",
+      "id": "a935e1ec-68ba-4ed8-8b27-a8bfd51a28ab",
+      "displayName": "Time range",
+      "description": "",
+      "beginVariableName": "_startTime",
+      "endVariableName": "_endTime",
+      "defaultValue": {
+        "kind": "dynamic",
+        "count": 1,
+        "unit": "hours"
+      },
+      "showOnPages": {
+        "kind": "all"
+      }
+    }
+  ],
+  "dataSources": [
+    {
+      "kind": "kusto-trident",
+      "clusterUri": "",
+      "name": "eh_am_energy",
+      "databaseArtifactId": "9700b48e-4a6f-403d-97ea-72d3a03f115a",
+      "database": "a03f115a-72d3-97ea-403d-4a6f9700b48e",
+      "workspace": "00000000-0000-0000-0000-000000000000",
+      "id": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+    }
+  ],
+  "pages": [
+    {
+      "name": "rtd_am_energy",
+      "id": "c39752c9-ec00-4ffa-b546-9e909f832a54"
+    }
+  ],
+  "queries": [
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+      },
+      "text": "CurrentState() | order by machine_id asc",
+      "id": "883835cb-41ab-43e1-bdd8-84ee2e3d67ac",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+      },
+      "text": "ParkPower(1h, 1m) | where window_start < bin(now(), 1m) | project window_start, park_kw | order by window_start asc\n",
+      "id": "aca7b5a4-6011-4274-b0a1-09203f9b3f74",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+      },
+      "text": "readings_dedup | extend ts = todatetime(ts_source) | where ts > ago(30m) | summarize kW = avg(power_kw) by machine_id, bin(ts, 30s)",
+      "id": "92831b65-6745-4654-bb93-b85c659131a3",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+      },
+      "text": "HeatupRuns(2h, 0.0333) | order by run_start desc",
+      "id": "c2efa331-786e-46a1-9867-bf32d91e8ed9",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+      },
+      "text": "Freshness(15m) | project events, duplicates, p50_latency_s, p95_latency_s, age_s",
+      "id": "8c39e496-6b71-46ba-b682-4c3c51128ff0",
+      "usedVariables": []
+    }
+  ],
+  "embeddedApps": []
+}

@@ -1,0 +1,59 @@
+// KQL script
+// Use management commands in this script to configure your database items, such as tables, functions, materialized views, and more.
+
+
+.create-merge table meter_events (schema_version:long, machine_id:string, meter_id:string, seq:long, ts_source:string, ts_edge:string, state:string, job_id:string, l1_a:real, l2_a:real, l3_a:real, voltage_v:real, power_kw:real, energy_kwh_total:real, opc_status:string, EventProcessedUtcTime:datetime, PartitionId:long, EventEnqueuedUtcTime:datetime) 
+.create-or-alter function with (folder = "realtime", docstring = "Latest reading per 3D printer", skipvalidation = "true") CurrentState() {
+    readings_dedup
+    | extend ts = todatetime(ts_source)
+    | summarize arg_max(ts, *) by machine_id
+    | project machine_id, state, power_kw, job_id, opc_status, last_reading = ts, age_s = datetime_diff('second', now(), ts)
+}
+.create-or-alter function with (folder = "realtime", docstring = "State runs of each 3D printer: consecutive readings in the same state. scale converts demo time back to plant time (0.0333 when the simulator runs 30 times faster).", skipvalidation = "true") StateRuns(lookback:timespan=time(06:00:00), scale:real=1.0) {
+    readings_dedup
+    | extend ts = todatetime(ts_source)
+    | where ts > ago(lookback)
+    | project machine_id, ts, state
+    | order by machine_id asc, ts asc
+    | extend new_run = machine_id != prev(machine_id) or state != prev(state)
+    | extend run_id = row_cumsum(iff(new_run, 1, 0))
+    | summarize run_start = min(ts), run_last = max(ts), state = take_any(state), readings = count() by machine_id, run_id
+    | extend duration_h = round((run_last - run_start) / 1h / scale, 2)
+}
+.create-or-alter function with (folder = "realtime", docstring = "Heat-ups in the lookback window with duration in plant hours, overrun flag and whether the heat-up is still running", skipvalidation = "true") HeatupRuns(lookback:timespan=time(06:00:00), scale:real=1.0, threshold_h:real=2.6) {
+    let runs = StateRuns(lookback, scale);
+    let lastrun = runs | summarize current_run = max(run_id) by machine_id;
+    runs
+    | where state == "heat_up"
+    | join kind=inner lastrun on machine_id
+    | extend is_running = run_id == current_run, overrun = duration_h > threshold_h
+    | project machine_id, run_start, run_last, duration_h, overrun, is_running
+}
+.create-or-alter function with (folder = "realtime", docstring = "Park power in tumbling windows: average per 3D printer and window, summed over the park", skipvalidation = "true") ParkPower(lookback:timespan=time(01:00:00), window:timespan=time(00:01:00)) {
+    readings_dedup
+    | extend ts = todatetime(ts_source)
+    | where ts > ago(lookback)
+    | summarize kw = avg(power_kw) by machine_id, window_start = bin(ts, window)
+    | summarize park_kw = round(sum(kw), 1), machines = dcount(machine_id) by window_start
+}
+.create-or-alter function with (folder = "realtime", docstring = "Freshness of the live data: events, duplicates and latency from measurement to Eventstream", skipvalidation = "true") Freshness(lookback:timespan=time(00:15:00)) {
+    meter_events
+    | extend ts = todatetime(ts_source)
+    | where ts > ago(lookback)
+    | extend latency_s = datetime_diff('millisecond', EventEnqueuedUtcTime, ts) / 1000.0
+    | summarize events = count(), measurements = count_distinct(strcat(meter_id, "|", ts_source)), last_measurement = max(ts),
+                p50_latency_s = percentile(latency_s, 50), p95_latency_s = percentile(latency_s, 95)
+    | extend duplicates = events - measurements, age_s = datetime_diff('second', now(), last_measurement),
+             p50_latency_s = round(p50_latency_s, 1), p95_latency_s = round(p95_latency_s, 1)
+}
+.create-or-alter function with (folder = "realtime", docstring = "Current heat-up status per 3D printer: heat-up duration in plant hours and overrun flag, one row per 3D printer", skipvalidation = "true") OverrunStatus(lookback:timespan=time(12:00:00), scale:real=1.0, threshold_h:real=2.6) {
+    let heatups = HeatupRuns(lookback, scale, threshold_h) | where is_running | project machine_id, heatup_start = run_start, heatup_h = duration_h;
+    CurrentState()
+    | join kind=leftouter heatups on machine_id
+    | extend heatup_h = coalesce(heatup_h, 0.0)
+    | extend overrun = heatup_h > threshold_h
+    | project machine_id, state, heatup_start, heatup_h, overrun, job_id, power_kw, last_reading
+}
+.create-or-alter materialized-view  readings_dedup on table meter_events { meter_events | summarize take_any(*) by meter_id, ts_source }
+.alter table meter_events policy retention @'{"SoftDeletePeriod":"30.00:00:00","Recoverability":"Disabled"}'
+.alter table meter_events policy caching hotdata = time(7.00:00:00) hotindex = time(7.00:00:00)
