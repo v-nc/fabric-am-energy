@@ -1,0 +1,64 @@
+// Real-time path on Eventhouse eh_am_energy. Run with: python3 scripts/kql.py mgmt @kql/setup.kql
+// Commands are separated by blank lines; none contains a blank line. Safe to re-run.
+
+// Keep 30 days of raw events, 7 days of them in hot cache: the Eventhouse serves the last hours and days,
+// the Lakehouse keeps the full history.
+.alter-merge table meter_events policy retention softdelete = 30d recoverability = disabled
+
+.alter table meter_events policy caching hot = 7d
+
+// One row per measurement (meter, measurement time), first copy wins. The real-time twin of the silver
+// deduplication: Eventstream delivers at least once and the gateway resends after lost acknowledgements.
+// Created async because backfilling over a table that already holds data is a long-running operation.
+.create async ifnotexists materialized-view with (backfill=true, docString="meter_events deduplicated on meter and measurement time") readings_dedup on table meter_events
+{
+    meter_events
+    | summarize take_any(*) by meter_id, ts_source
+}
+
+.create-or-alter function with (folder="realtime", docString="Latest reading per 3D printer") CurrentState() {
+    readings_dedup
+    | extend ts = todatetime(ts_source)
+    | summarize arg_max(ts, *) by machine_id
+    | project machine_id, state, power_kw, job_id, opc_status, last_reading = ts, age_s = datetime_diff('second', now(), ts)
+}
+
+.create-or-alter function with (folder="realtime", docString="State runs of each 3D printer: consecutive readings in the same state. scale converts demo time back to plant time (0.0333 when the simulator runs 30 times faster).") StateRuns(lookback:timespan = 6h, scale:real = 1.0) {
+    readings_dedup
+    | extend ts = todatetime(ts_source)
+    | where ts > ago(lookback)
+    | project machine_id, ts, state
+    | order by machine_id asc, ts asc
+    | extend new_run = machine_id != prev(machine_id) or state != prev(state)
+    | extend run_id = row_cumsum(iff(new_run, 1, 0))
+    | summarize run_start = min(ts), run_last = max(ts), state = take_any(state), readings = count() by machine_id, run_id
+    | extend duration_h = round((run_last - run_start) / 1h / scale, 2)
+}
+
+.create-or-alter function with (folder="realtime", docString="Heat-ups in the lookback window with duration in plant hours, overrun flag and whether the heat-up is still running") HeatupRuns(lookback:timespan = 6h, scale:real = 1.0, threshold_h:real = 2.6) {
+    let runs = StateRuns(lookback, scale);
+    let lastrun = runs | summarize current_run = max(run_id) by machine_id;
+    runs
+    | where state == "heat_up"
+    | join kind=inner lastrun on machine_id
+    | extend is_running = run_id == current_run, overrun = duration_h > threshold_h
+    | project machine_id, run_start, run_last, duration_h, overrun, is_running
+}
+
+.create-or-alter function with (folder="realtime", docString="Park power in tumbling windows: average per 3D printer and window, summed over the park") ParkPower(lookback:timespan = 1h, window:timespan = 1m) {
+    readings_dedup
+    | extend ts = todatetime(ts_source)
+    | where ts > ago(lookback)
+    | summarize kw = avg(power_kw) by machine_id, window_start = bin(ts, window)
+    | summarize park_kw = round(sum(kw), 1), machines = dcount(machine_id) by window_start
+}
+
+.create-or-alter function with (folder="realtime", docString="Freshness of the live data: events, duplicates and latency from measurement to Eventstream") Freshness(lookback:timespan = 15m) {
+    meter_events
+    | extend ts = todatetime(ts_source)
+    | where ts > ago(lookback)
+    | extend latency_s = datetime_diff('millisecond', EventEnqueuedUtcTime, ts) / 1000.0
+    | summarize events = count(), measurements = dcount(strcat(meter_id, "|", ts_source)), last_measurement = max(ts),
+                p50_latency_s = percentile(latency_s, 50), p95_latency_s = percentile(latency_s, 95)
+    | extend duplicates = events - measurements, age_s = datetime_diff('second', now(), last_measurement)
+}
