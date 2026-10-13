@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "name": "mart",
+    "path": "/Tables",
+    "target": {
+      "type": "OneLake",
+      "oneLake": {
+        "path": "Tables/mart",
+        "itemId": "3911f207-761d-a39b-447f-96a6c66d67f4",
+        "workspaceId": "00000000-0000-0000-0000-000000000000",
+        "artifactType": "Warehouse"
+      }
+    }
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Dataflow",
+    "displayName": "df_day_ahead_prices"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "51659a76-43a4-9a70-4f86-7ec07c520219"
+  }
+}

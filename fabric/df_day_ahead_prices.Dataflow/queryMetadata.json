@@ -1,0 +1,33 @@
+{
+  "formatVersion": "202502",
+  "computeEngineSettings": {
+    "allowModernEvaluationEngine": true
+  },
+  "name": "df_day_ahead_prices",
+  "queryGroups": [],
+  "documentLocale": "en-US",
+  "queriesMetadata": {
+    "day_ahead_price": {
+      "queryId": "26e5842e-57f5-4a91-981c-68272f72844d",
+      "queryName": "day_ahead_price"
+    },
+    "day_ahead_price_DataDestination": {
+      "queryId": "7ec7d7d2-9bc6-4239-9e65-25c463b5c138",
+      "queryName": "day_ahead_price_DataDestination",
+      "isHidden": true,
+      "loadEnabled": false
+    }
+  },
+  "connections": [
+    {
+      "path": "https://api.energy-charts.info/",
+      "kind": "Web",
+      "connectionId": "{\"ClusterId\":\"794a4cfc-402c-4242-bb4b-3e50cf2d4fcf\",\"DatasourceId\":\"86a6c8c1-5dd8-4b80-a8bd-c0abfa2cb69f\"}"
+    },
+    {
+      "path": "Warehouse",
+      "kind": "Warehouse",
+      "connectionId": "{\"ClusterId\":\"794a4cfc-402c-4242-bb4b-3e50cf2d4fcf\",\"DatasourceId\":\"a0796f3b-3c63-407a-9d24-dde4d1801586\"}"
+    }
+  ]
+}

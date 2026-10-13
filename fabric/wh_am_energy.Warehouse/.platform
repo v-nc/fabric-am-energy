@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Warehouse",
+    "displayName": "wh_am_energy",
+    "description": ""
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "3911f207-761d-a39b-447f-96a6c66d67f4"
+  }
+}
