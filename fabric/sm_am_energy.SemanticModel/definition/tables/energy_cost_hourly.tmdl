@@ -1,0 +1,139 @@
+table energy_cost_hourly
+	lineageTag: ca928ad7-7eb9-4634-a787-fc71e8d8e1f8
+	sourceLineageTag: [mart].[energy_cost_hourly]
+
+	/// Energy at the hourly day-ahead price (energy component only, without grid fees and levies)
+	measure Day_ahead_cost = SUM ( energy_cost_hourly[cost_spot_eur] )
+		formatString: #,0\ "€";-#,0\ "€";#,0\ "€"
+		displayFolder: Market prices
+		lineageTag: 626b919c-9b27-499f-b74c-a01c9cdca6a4
+
+	measure Market_kWh = SUM ( energy_cost_hourly[kwh] )
+		formatString: #,0
+		isHidden
+		displayFolder: Market prices
+		lineageTag: c58252b9-fc25-4f5d-a00b-b99ee5240a0f
+
+	/// Load-weighted day-ahead price: what the park's consumption profile paid per MWh
+	measure Park_price_EUR_MWh = DIVIDE ( [Day_ahead_cost], [Market_kWh] ) * 1000
+		formatString: #,0.0
+		displayFolder: Market prices
+		lineageTag: fd318d7c-b479-4cd7-90e7-240934b7b6e1
+
+	/// Time-weighted day-ahead price: the plain average over the hours in the filter
+	measure Market_price_EUR_MWh = AVERAGEX ( VALUES ( energy_cost_hourly[hour_start_utc] ), CALCULATE ( MAX ( energy_cost_hourly[spot_eur_mwh] ) ) )
+		formatString: #,0.0
+		displayFolder: Market prices
+		lineageTag: e89320de-38e8-48be-8a8e-48e94b9a8d0b
+
+	/// How much more (or less) than the market average the park's load profile pays
+	measure Load_profile_premium = DIVIDE ( [Park_price_EUR_MWh], [Market_price_EUR_MWh] ) - 1
+		formatString: +0.0%;-0.0%;0.0%
+		displayFolder: Market prices
+		lineageTag: e422983d-6b41-4be2-88ee-acff57c00f38
+
+	/// Average power of the 3D printers in the filter, in kW (kWh per hour)
+	measure Avg_park_power_kW = DIVIDE ( [Market_kWh], DISTINCTCOUNT ( energy_cost_hourly[hour_start_utc] ) )
+		formatString: #,0.0
+		displayFolder: Market prices
+		lineageTag: b3a82193-117d-4420-988a-d33e64ea4c97
+
+	/// Hours with a negative day-ahead price
+	measure Negative_price_hours = CALCULATE ( DISTINCTCOUNT ( energy_cost_hourly[hour_start_utc] ), KEEPFILTERS ( energy_cost_hourly[spot_eur_mwh] < 0 ) )
+		formatString: #,0
+		displayFolder: Market prices
+		lineageTag: 7331469b-b5eb-4417-a299-6bb6fa2d9508
+
+	/// Energy consumed while the day-ahead price was negative
+	measure kWh_at_negative_price = CALCULATE ( [Market_kWh], KEEPFILTERS ( energy_cost_hourly[spot_eur_mwh] < 0 ) )
+		formatString: #,0
+		displayFolder: Market prices
+		lineageTag: 9af243f1-21cb-43c8-a958-2bd2c9d4a25b
+
+	column machine_sk
+		dataType: string
+		isHidden
+		lineageTag: a600a8be-8fb0-4d15-a782-23668944bc88
+		sourceLineageTag: machine_sk
+		summarizeBy: none
+		sourceColumn: machine_sk
+
+		annotation SummarizationSetBy = Automatic
+
+	column hour_start_utc
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c3a58a70-0742-488b-b766-5590a32d971e
+		sourceLineageTag: hour_start_utc
+		summarizeBy: none
+		sourceColumn: hour_start_utc
+
+		annotation SummarizationSetBy = Automatic
+
+	column date_key
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: af2791ee-65ae-46e5-a133-0a4eb1ef3107
+		sourceLineageTag: date_key
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column hour_local
+		dataType: int64
+		formatString: 0
+		lineageTag: 62606b7c-3968-4c78-a748-d61f1d544c9f
+		sourceLineageTag: hour_local
+		summarizeBy: none
+		sourceColumn: hour_local
+
+		annotation SummarizationSetBy = Automatic
+
+	column kwh
+		dataType: double
+		isHidden
+		lineageTag: fa697d95-289d-4cb0-9b91-7a7dcffee6ec
+		sourceLineageTag: kwh
+		summarizeBy: sum
+		sourceColumn: kwh
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_tou_eur
+		dataType: double
+		isHidden
+		lineageTag: 9149514e-d3a9-4863-ba8c-0729d12578ec
+		sourceLineageTag: cost_tou_eur
+		summarizeBy: sum
+		sourceColumn: cost_tou_eur
+
+		annotation SummarizationSetBy = Automatic
+
+	column spot_eur_mwh
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 5260c976-9f99-4644-a86f-05885017a834
+		sourceLineageTag: spot_eur_mwh
+		summarizeBy: none
+		sourceColumn: spot_eur_mwh
+
+		annotation SummarizationSetBy = Automatic
+
+	column cost_spot_eur
+		dataType: double
+		isHidden
+		lineageTag: 13fcdd20-c6e9-4550-a40d-392d4e69f88a
+		sourceLineageTag: cost_spot_eur
+		summarizeBy: sum
+		sourceColumn: cost_spot_eur
+
+		annotation SummarizationSetBy = Automatic
+
+	partition energy_cost_hourly = entity
+		mode: directLake
+		source
+			entityName: energy_cost_hourly
+			schemaName: mart
+			expressionSource: 'DirectLake - lh_energy'

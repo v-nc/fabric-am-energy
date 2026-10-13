@@ -1,0 +1,118 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "aa4418a692852853989d",
+  "position": {
+    "x": 24,
+    "y": 256,
+    "z": 5000,
+    "height": 380,
+    "width": 928,
+    "tabOrder": 5000
+  },
+  "visual": {
+    "visualType": "lineClusteredColumnComboChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "hour_local"
+                }
+              },
+              "queryRef": "energy_cost_hourly.hour_local",
+              "nativeQueryRef": "hour_local",
+              "displayName": "Hour of day (local)"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Avg_park_power_kW"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Avg_park_power_kW",
+              "nativeQueryRef": "Avg_park_power_kW",
+              "displayName": "Park power (kW)",
+              "format": "#,0.0"
+            }
+          ]
+        },
+        "Y2": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Market_price_EUR_MWh"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Market_price_EUR_MWh",
+              "nativeQueryRef": "Market_price_EUR_MWh",
+              "displayName": "Day-ahead price (EUR/MWh)",
+              "format": "#,0.0"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "energy_cost_hourly"
+                  }
+                },
+                "Property": "hour_local"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Park power and day-ahead price by hour of day'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

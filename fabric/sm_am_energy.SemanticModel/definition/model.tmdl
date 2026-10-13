@@ -17,6 +17,7 @@ ref table dim_machine
 ref table dim_state
 ref table dim_tariff
 ref table dim_time_slot
+ref table energy_cost_hourly
 ref table fact_build_job
 ref table fact_data_quality_daily
 ref table fact_energy_15min

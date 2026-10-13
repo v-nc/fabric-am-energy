@@ -50,3 +50,10 @@ relationship 34228d2a-b31f-687a-17d2-172eb7c84fd2
 	fromColumn: fact_data_quality_daily.machine_sk
 	toColumn: dim_machine.machine_sk
 
+relationship 9d644d17-06cf-49b5-aa30-f985f52cb958
+	fromColumn: energy_cost_hourly.machine_sk
+	toColumn: dim_machine.machine_sk
+
+relationship aa672f8f-9c40-4103-965f-7791ad49ed0f
+	fromColumn: energy_cost_hourly.date_key
+	toColumn: dim_date.date_key

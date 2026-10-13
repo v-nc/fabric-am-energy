@@ -1,0 +1,138 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "19ef5175a26b00425c36",
+  "position": {
+    "x": 24,
+    "y": 112,
+    "z": 4000,
+    "height": 128,
+    "width": 1872,
+    "tabOrder": 4000
+  },
+  "visual": {
+    "visualType": "cardVisual",
+    "query": {
+      "queryState": {
+        "Data": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Park_price_EUR_MWh"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Park_price_EUR_MWh",
+              "nativeQueryRef": "Park_price_EUR_MWh",
+              "displayName": "Park price (EUR/MWh)",
+              "format": "#,0.0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Market_price_EUR_MWh"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Market_price_EUR_MWh",
+              "nativeQueryRef": "Market_price_EUR_MWh",
+              "displayName": "Market average (EUR/MWh)",
+              "format": "#,0.0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Load_profile_premium"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Load_profile_premium",
+              "nativeQueryRef": "Load_profile_premium",
+              "displayName": "Load-profile premium",
+              "format": "+0.0%;-0.0%;0.0%"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Day_ahead_cost"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Day_ahead_cost",
+              "nativeQueryRef": "Day_ahead_cost",
+              "displayName": "Energy at day-ahead prices",
+              "format": "#,0\\ \"€\""
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "Negative_price_hours"
+                }
+              },
+              "queryRef": "energy_cost_hourly.Negative_price_hours",
+              "nativeQueryRef": "Negative_price_hours",
+              "displayName": "Negative-price hours",
+              "format": "#,0"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "energy_cost_hourly"
+                    }
+                  },
+                  "Property": "kWh_at_negative_price"
+                }
+              },
+              "queryRef": "energy_cost_hourly.kWh_at_negative_price",
+              "nativeQueryRef": "kWh_at_negative_price",
+              "displayName": "kWh at negative prices",
+              "format": "#,0"
+            }
+          ]
+        }
+      }
+    },
+    "objects": {
+      "value": [
+        {
+          "properties": {
+            "labelDisplayUnits": {
+              "expr": {
+                "Literal": {
+                  "Value": "1D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "id": "default"
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

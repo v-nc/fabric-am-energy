@@ -1,0 +1,48 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "c7aa5660208cff5e02f3",
+  "position": {
+    "x": 24,
+    "y": 8,
+    "z": 1000,
+    "height": 88,
+    "width": 1140,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Market prices: does the park buy at expensive hours?",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "fontSize": "20pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Hourly day-ahead prices for the Swiss bidding zone (Energy-Charts; data Bundesnetzagentur | SMARD.de, CC BY 4.0) against the simulated consumption. Energy component only: the fixed tariff also covers grid fees and levies.",
+                    "textStyle": {
+                      "fontSize": "11pt",
+                      "color": "#605E5C"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}
