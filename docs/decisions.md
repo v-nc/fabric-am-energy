@@ -244,7 +244,8 @@ pinned version; and `scripts/check_fabric.py`, which resolves every table, colum
 against the semantic model's TMDL. The report pages are edited as code, and a renamed measure would otherwise only
 show up as a broken visual in Fabric. Deployment stays with Fabric Git integration: deploying from CI (fabric-cicd)
 needs a service principal allowed to use the Fabric APIs and a running capacity, which this project pauses. It's
-the next step for a dev/test/prod setup.
+the next step for a dev/test/prod setup. The workflow has read-only permissions, the third-party action is pinned to
+a commit SHA, and GitHub secret scanning with push protection backs the rule that secrets live only in `.env`.
 
 ## Open
 
