@@ -3,8 +3,8 @@
   "flavor": "RTDashboard_Regular",
   "changeDetection": {
     "kind": "liveUpdates",
-    "fallbackRefreshRate": "5m",
-    "minRefreshRate": "30s"
+    "minRefreshRate": "30s",
+    "fallbackRefreshRate": "5m"
   },
   "tiles": [
     {
@@ -198,6 +198,56 @@
         "table__renderLinks": [],
         "colorRules": []
       }
+    },
+    {
+      "id": "c9c0e04c-56d4-481d-abfe-6f66e58c9bbf",
+      "title": "Heat-up status now",
+      "visualType": "table",
+      "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
+      "layout": {
+        "x": 0,
+        "y": 23,
+        "width": 24,
+        "height": 6
+      },
+      "queryRef": {
+        "kind": "query",
+        "queryId": "89d09377-7a7b-4551-8be5-a2e8b3845df5"
+      },
+      "visualOptions": {
+        "table__enableRenderLinks": true,
+        "colorRulesDisabled": false,
+        "crossFilter": [],
+        "crossFilterDisabled": false,
+        "drillthroughDisabled": false,
+        "drillthrough": [],
+        "table__renderLinks": [],
+        "colorRules": [
+          {
+            "id": "2155ce33-4782-48a5-86f1-60ecc0d6f05d",
+            "ruleType": "colorByCondition",
+            "applyToColumn": null,
+            "hideText": false,
+            "applyTo": "cells",
+            "conditions": [
+              {
+                "operator": "==",
+                "column": "overrun",
+                "values": [
+                  "true"
+                ]
+              }
+            ],
+            "chainingOperator": "and",
+            "colorStyle": "bold",
+            "color": "red",
+            "tag": "",
+            "icon": null,
+            "ruleName": "",
+            "visualType": "table"
+          }
+        ]
+      }
     }
   ],
   "baseQueries": [],
@@ -280,6 +330,15 @@
       },
       "text": "Freshness(15m) | project events, duplicates, p50_latency_s, p95_latency_s, age_s",
       "id": "8c39e496-6b71-46ba-b682-4c3c51128ff0",
+      "usedVariables": []
+    },
+    {
+      "dataSource": {
+        "kind": "inline",
+        "dataSourceId": "6dbbcb7e-6279-41e1-a6a2-11382c7e2222"
+      },
+      "text": "OverrunStatus(30m, 0.0333) | order by machine_id asc\n",
+      "id": "89d09377-7a7b-4551-8be5-a2e8b3845df5",
       "usedVariables": []
     }
   ],
