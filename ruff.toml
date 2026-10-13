@@ -1,0 +1,5 @@
+# Lint settings for all Python in the repository (spark/ and scripts/). CI pins the ruff version.
+line-length = 120
+# Fabric notebook sources use globals that Fabric injects (spark, notebookutils, display); the logic they call is in
+# spark/src and linted there.
+extend-exclude = ["fabric"]

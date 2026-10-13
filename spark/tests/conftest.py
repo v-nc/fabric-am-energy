@@ -7,14 +7,13 @@ import time
 os.environ["TZ"] = "UTC"
 time.tzset()
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+from am_energy.bronze import BRONZE_SCHEMA
 from delta import configure_spark_with_delta_pip
 from pyspark.sql import DataFrame, SparkSession
-
-from am_energy.bronze import BRONZE_SCHEMA
 
 REPO = Path(__file__).resolve().parents[2]
 HISTORY = REPO / "data" / "history"
@@ -40,7 +39,7 @@ def spark(tmp_path_factory):
     session.stop()
 
 
-T0 = datetime(2026, 3, 2, 8, 0, tzinfo=timezone.utc)  # a Monday
+T0 = datetime(2026, 3, 2, 8, 0, tzinfo=UTC)  # a Monday
 
 
 def ts(minutes: float) -> datetime:

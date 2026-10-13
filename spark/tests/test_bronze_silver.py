@@ -3,12 +3,11 @@ from __future__ import annotations
 from datetime import timedelta
 
 import pytest
-from pyspark.sql import functions as F
-
 from am_energy import PipelineConfig
 from am_energy.bronze import BRONZE_SCHEMA, to_bronze
 from am_energy.silver import deduplicate, merge_into, silver_increment, to_silver
 from conftest import HISTORY, bronze_df, event, ts
+from pyspark.sql import functions as F
 
 CFG = PipelineConfig()
 

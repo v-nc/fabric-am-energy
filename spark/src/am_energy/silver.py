@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from pyspark.sql import DataFrame, SparkSession, Window, functions as F
+from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import functions as F
 
 from .config import PipelineConfig
 

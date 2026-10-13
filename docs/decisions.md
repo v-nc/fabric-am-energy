@@ -237,6 +237,15 @@ Sizing, pausing and costing a capacity is also part of running Fabric in product
 **20. Synthetic data, every parameter an assumption.** No real machine, customer or company data. All parameters are
 in `config/assumptions.yaml`.
 
+**44. CI checks what Fabric can't, and doesn't deploy yet.** GitHub Actions runs on every push and pull request: the
+TypeScript typecheck and tests; the Python unit tests plus the end-to-end tests on a regenerated 12-month history
+(fixed seed, 16 s; `REQUIRE_HISTORY` turns a missing history into a failure instead of a silent skip); ruff at a
+pinned version; and `scripts/check_fabric.py`, which resolves every table, column and measure the report uses
+against the semantic model's TMDL. The report pages are edited as code, and a renamed measure would otherwise only
+show up as a broken visual in Fabric. Deployment stays with Fabric Git integration: deploying from CI (fabric-cicd)
+needs a service principal allowed to use the Fabric APIs and a running capacity, which this project pauses. It's
+the next step for a dev/test/prod setup.
+
 ## Open
 
 - **RLS by hall is defined but not yet enforced end to end.** Roles `Hall H1` and `Hall H2` filter `dim_machine`

@@ -41,7 +41,8 @@ def run(kind: str, csl: str, tok: str) -> list[dict]:
 def main() -> None:
     kind, text = sys.argv[1], sys.argv[2]
     if text.startswith("@"):
-        text = open(text[1:]).read()
+        with open(text[1:], encoding="utf-8") as f:
+            text = f.read()
     tok = token()
     commands = [text]
     if kind == "mgmt":

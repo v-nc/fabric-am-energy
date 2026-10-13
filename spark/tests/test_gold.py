@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import UTC, date, datetime
 
 import pytest
-from pyspark.sql import functions as F
-
-from am_energy import PipelineConfig
-from am_energy import gold
+from am_energy import PipelineConfig, gold
 from am_energy.silver import to_silver
 from conftest import bronze_df, event, ts
+from pyspark.sql import functions as F
 
 CFG = PipelineConfig()
 
@@ -61,8 +59,8 @@ def test_bucket_allocation_is_proportional_and_conserves_energy(spark):
 
 def test_fact_energy_15min_completeness_and_tariff(spark):
     # Monday 2026-03-02 08:00 UTC = 09:00 local → peak. One reading per minute for 15 min, minus 5 missing minutes.
-    rows = [event(m) for m in range(0, 16) if m not in (3, 4, 5, 6, 7)]
-    f = gold.fact_energy_15min(silver_of(spark, rows), CFG).where(F.col("bucket_start") == datetime(2026, 3, 2, 8, tzinfo=timezone.utc)).first()
+    rows = [event(m) for m in range(16) if m not in (3, 4, 5, 6, 7)]
+    f = gold.fact_energy_15min(silver_of(spark, rows), CFG).where(F.col("bucket_start") == datetime(2026, 3, 2, 8, tzinfo=UTC)).first()
     assert f["minutes_covered"] == 10 and f["completeness"] == pytest.approx(10 / 15)
     assert f["tariff_band"] == "peak" and f["date_key"] == 20260302 and f["slot_of_day"] == 36
     assert f["kwh"] == pytest.approx(15 * 1.5 / 60)
@@ -71,10 +69,10 @@ def test_fact_energy_15min_completeness_and_tariff(spark):
 
 def test_tariff_uses_local_time_across_daylight_saving(spark):
     df = spark.createDataFrame(
-        [(datetime(2026, 1, 12, 5, 30, tzinfo=timezone.utc),),   # Mon 06:30 CET  → off-peak
-         (datetime(2026, 1, 12, 6, 30, tzinfo=timezone.utc),),   # Mon 07:30 CET  → peak
-         (datetime(2026, 7, 13, 5, 30, tzinfo=timezone.utc),),   # Mon 07:30 CEST → peak
-         (datetime(2026, 7, 11, 10, 0, tzinfo=timezone.utc),)],  # Saturday       → off-peak
+        [(datetime(2026, 1, 12, 5, 30, tzinfo=UTC),),   # Mon 06:30 CET  → off-peak
+         (datetime(2026, 1, 12, 6, 30, tzinfo=UTC),),   # Mon 07:30 CET  → peak
+         (datetime(2026, 7, 13, 5, 30, tzinfo=UTC),),   # Mon 07:30 CEST → peak
+         (datetime(2026, 7, 11, 10, 0, tzinfo=UTC),)],  # Saturday       → off-peak
         "t timestamp",
     )
     bands = [r[0] for r in df.select(gold.tariff_band(gold.local(F.col("t"), CFG), CFG)).collect()]
@@ -87,7 +85,7 @@ def job_cycle_rows(heatup_minutes: int):
                                    ("building", 300, 4.0, "LS01-20260302T1000"), ("cool_down", 60, 1.5, None),
                                    ("idle", 30, 1.5, None)]:
         for _ in range(0, length, 5):
-            rows.append(dict(minutes=m, state=state, power_kw=kw, job_id=job))
+            rows.append({"minutes": m, "state": state, "power_kw": kw, "job_id": job})
             m += 5
     energy, out = 1000.0, []
     for i, r in enumerate(rows):
@@ -134,7 +132,7 @@ def test_state_energy_adds_up_to_total(spark):
 
 
 def test_scd2_from_snapshots_and_merge(spark):
-    snap = lambda d, hall, serial: (d, "LS05", hall, "EM05", serial)  # noqa: E731
+    snap = lambda d, hall, serial: (d, "LS05", hall, "EM05", serial)
     schema = "snapshot_date string, machine_id string, hall_id string, meter_id string, meter_serial string"
     snapshots = spark.createDataFrame(
         [snap("2026-01-01", "H1", "A"), snap("2026-02-01", "H1", "A"), snap("2026-03-01", "H2", "A")], schema
@@ -150,7 +148,7 @@ def test_scd2_from_snapshots_and_merge(spark):
     t = spark.table("dim_machine_test").orderBy("valid_from").collect()
     assert [(r["hall_id"], r["meter_serial"], r["is_current"]) for r in t] == [("H1", "A", False), ("H2", "A", False), ("H2", "B", True)]
 
-    fact = spark.createDataFrame([("LS05", datetime(2026, 1, 15, tzinfo=timezone.utc)), ("LS05", datetime(2026, 3, 15, tzinfo=timezone.utc))], "machine_id string, t timestamp")
+    fact = spark.createDataFrame([("LS05", datetime(2026, 1, 15, tzinfo=UTC)), ("LS05", datetime(2026, 3, 15, tzinfo=UTC))], "machine_id string, t timestamp")
     keyed = {r["t"].month: r["machine_sk"] for r in gold.attach_machine_sk(fact, spark.table("dim_machine_test"), "t").collect()}
     assert keyed == {1: "LS05_20260101", 3: "LS05_20260301"}
 

@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from datetime import date, timedelta
 
-from pyspark.sql import Column, DataFrame, SparkSession, Window, functions as F
+from pyspark.sql import Column, DataFrame, SparkSession, Window
+from pyspark.sql import functions as F
 
 from .config import PipelineConfig
 
@@ -341,7 +342,7 @@ def apply_scd2(spark: SparkSession, table: str, snapshot: DataFrame, as_of: str)
     changed = (
         snapshot.alias("s")
         .join(current.alias("c"), "machine_id", "left")
-        .where(" OR ".join([f"c.machine_id IS NULL"] + [f"NOT (s.{c} <=> c.{c})" for c in MACHINE_TRACKED]))
+        .where(" OR ".join(["c.machine_id IS NULL"] + [f"NOT (s.{c} <=> c.{c})" for c in MACHINE_TRACKED]))
         .select("s.*", F.col("c.machine_id").isNotNull().alias("_existing"))
     )
     # Changed machines appear twice: once to close the old version (matched on machine_id), once to insert the new
@@ -415,8 +416,8 @@ def build_gold(
     dim_machine = scd2_rows(snapshots).cache()
     intervals = state_intervals(silver, cfg).cache()
     span = silver.agg(F.min("ts_source").alias("lo"), F.max("ts_source").alias("hi")).first()
-    keyed = lambda fact, ts: attach_machine_sk(fact, dim_machine, ts)  # noqa: E731
-    day_keyed = lambda fact: (  # noqa: E731
+    keyed = lambda fact, ts: attach_machine_sk(fact, dim_machine, ts)
+    day_keyed = lambda fact: (
         keyed(fact.withColumn("_noon", _day_noon_utc("date_key")), "_noon").drop("_noon")
     )
     return {
@@ -444,7 +445,7 @@ def coverage_grid(dq: DataFrame, dim_machine: DataFrame, silver: DataFrame, cfg:
         F.min(date_key(local(F.col("ts_source"), cfg))).alias("lo"),
         F.max(date_key(local(F.col("ts_source"), cfg))).alias("hi"),
     ).first()
-    to_date = lambda k: F.to_date(F.col(k).cast("string"), "yyyyMMdd")  # noqa: E731
+    to_date = lambda k: F.to_date(F.col(k).cast("string"), "yyyyMMdd")
     days = (
         dq.sparkSession.createDataFrame([(bounds["lo"], bounds["hi"])], "lo int, hi int")
         .select(F.explode(F.sequence(to_date("lo"), to_date("hi"))).alias("d"))

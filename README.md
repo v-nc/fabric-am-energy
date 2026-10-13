@@ -1,5 +1,7 @@
 # fabric-am-energy
 
+[![CI](https://github.com/v-nc/fabric-am-energy/actions/workflows/ci.yml/badge.svg)](https://github.com/v-nc/fabric-am-energy/actions/workflows/ci.yml)
+
 Energy monitoring for a park of laser-sintering 3D printers, built end to end in Microsoft Fabric: OPC UA at the
 edge, streaming ingestion, a bronze/silver/gold Lakehouse, a Direct Lake semantic model and a Power BI report, all
 versioned in this repository.
@@ -25,9 +27,9 @@ versioned in this repository.
   e-mail alerts: one per heat-up overrun (the 2019 alert, live) and one per failed run of the daily pipeline.
 - **Market prices:** a Dataflow Gen2 loads public Swiss day-ahead prices into a Warehouse, where a T-SQL procedure
   joins them with gold; the mart reaches the report through a OneLake shortcut.
-- **Engineering:** transformations are a tested Python package (67 automated tests in total) deployed to Fabric as a
-  wheel; every Fabric item, including the semantic model and the report, is stored here as text through Git
-  integration; 43 [design decisions](docs/decisions.md) are written down.
+- **Engineering:** transformations are a tested Python package deployed to Fabric as a wheel; 67 automated tests run
+  on GitHub Actions at every push; every Fabric item, including the semantic model and the report, is stored here as
+  text through Git integration; 44 [design decisions](docs/decisions.md) are written down.
 - **Checked against the truth:** the simulator injects faults and records them in a ground-truth file. The pipeline
   removed exactly the 10,522 injected duplicates, found 100 of 108 injected heat-up overruns with no false alarm, and
   reports 97.7 % data completeness.
@@ -162,6 +164,8 @@ The daily pipeline: silver, then gold, then table maintenance and the semantic m
 - Table maintenance: OPTIMIZE with V-Order for append-heavy tables (the live table went from about 400 small files to
   1) and VACUUM with 7 days' retention.
 - Workspace, Spark settings, GitHub connection and Git link created through the Fabric REST API.
+- CI on GitHub Actions: the TypeScript and Python tests (the end-to-end ones on a regenerated history), ruff, and a
+  check that every field the report uses exists in the semantic model.
 
 ## Results, checked against the ground truth
 
@@ -181,7 +185,7 @@ the Fabric run compare the pipeline's output with it.
 
 ## Design decisions
 
-All 38 are in [docs/decisions.md](docs/decisions.md), each with the reason and the alternative. A few that shape the
+All 44 are in [docs/decisions.md](docs/decisions.md), each with the reason and the alternative. A few that shape the
 project:
 
 - **Custom endpoint, not MQTT** (1): GA, no public broker, standard Event Hubs SDK.
@@ -207,6 +211,7 @@ and a Microsoft Entra tenant where you are Fabric administrator, and a GitHub fo
 cd edge && npm ci && npm test            # 37 tests: simulator, gateway, history generator, demo mode
 npm run history                          # 12 months of history into data/history (about 150 MB)
 cd ../spark && uv sync && uv run pytest  # 30 tests, including end-to-end runs against the ground truth
+cd .. && uvx ruff@0.17.0 check . && python3 scripts/check_fabric.py   # lint; report fields against the model
 cd .. && cp .env.example .env && docker compose up --build   # simulator + gateway, writing JSON lines locally
 docker compose kill -s USR1 gateway      # toggle a simulated network outage
 ```
@@ -267,7 +272,7 @@ while the capacity runs are (decision 38).
 
 | Skill area | Covered here | Next |
 |---|---|---|
-| Implement and manage an analytics solution | Workspace and Spark settings, Environment, Git integration, pipeline orchestration, schedule and parameters, semantic model security roles, capacity management, OneLake shortcuts | Deployment pipeline, workspace roles and item permissions |
+| Implement and manage an analytics solution | Workspace and Spark settings, Environment, Git integration, pipeline orchestration, schedule and parameters, semantic model security roles, capacity management, OneLake shortcuts, Warehouse as a SQL database project, CI on GitHub Actions | Deployment pipeline or fabric-cicd, workspace roles and item permissions |
 | Ingest and transform data | Eventstream, Spark Structured Streaming, PySpark and Spark SQL, full and incremental loads, deduplication, late and missing data, SCD type 2, windowing in Spark, Eventhouse and KQL (materialized view, window functions, stored functions), Dataflow Gen2 (Power Query, web API), T-SQL in a Warehouse (stored procedure, transaction, cross-database query) | A materialized lake view |
 | Monitor and optimize | Monitoring hub, Eventstream data insights, OPTIMIZE / V-Order / VACUUM, Spark pool sizing and high concurrency, Direct Lake framing, Activator alerts on pipeline failures (job events) and heat-up overruns (KQL) | Capacity Metrics app |
 
@@ -283,7 +288,8 @@ while the capacity runs are (decision 38).
 | `dataflow/` | Power Query of the Dataflow Gen2 that loads the day-ahead prices |
 | `kql/` | Eventhouse setup: retention, the deduplicating materialized view, the real-time functions |
 | `model/` | Star schema and DAX measures, as designed before building |
-| `scripts/` | Capacity, workspace and Git setup; history upload; KQL and T-SQL clients |
+| `scripts/` | Capacity, workspace and Git setup; history upload; KQL and T-SQL clients; Fabric definition checks |
+| `.github/workflows/` | CI: tests, lint and definition checks on every push |
 | `docs/` | Design decisions, screenshots, report PDF |
 
 ## Status
@@ -295,8 +301,8 @@ while the capacity runs are (decision 38).
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
 | 4 | Direct Lake semantic model and Power BI report | ✅ (RLS enforcement open) |
-| 5 | Eventhouse/KQL, Real-Time Dashboard and Activator alerts; Dataflow Gen2 and Warehouse; CI | 🔄 real-time path, Dataflow Gen2 and Warehouse done; CI next |
-| 6 | Packaging: README, screenshots, demo video | 🔄 first version done; video after phase 5 |
+| 5 | Eventhouse/KQL, Real-Time Dashboard and Activator alerts; Dataflow Gen2 and Warehouse; CI | ✅ |
+| 6 | Packaging: README, screenshots, demo video | 🔄 second version done; demo video next |
 
 ## License
 

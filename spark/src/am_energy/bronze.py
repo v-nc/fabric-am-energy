@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from pyspark.sql import DataFrame, functions as F, types as T
+from pyspark.sql import DataFrame
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
 
 EVENT_COLUMNS: list[tuple[str, T.DataType]] = [
     ("schema_version", T.IntegerType()),

@@ -1,22 +1,25 @@
 """Runs bronze → silver → gold over two months of generated history and checks the results against the ground truth
-the generator recorded. Skipped until `npm run history` has been run in edge/."""
+the generator recorded. Skipped until `npm run history` has been run in edge/, except when REQUIRE_HISTORY is set
+(CI): then missing history fails instead of passing silently."""
 
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timedelta
 
 import pytest
-from pyspark.sql import functions as F
-
 from am_energy import PipelineConfig, gold
 from am_energy.bronze import to_bronze
 from am_energy.silver import to_silver
 from conftest import HISTORY
+from pyspark.sql import functions as F
 
 MONTHS = ["2026-04", "2026-05"]  # the EM07 meter swap happens on 2026-05-01
 pytestmark = pytest.mark.skipif(
-    not all((HISTORY / f"meter_events_{m}.parquet").exists() for m in MONTHS), reason="run `npm run history` in edge/"
+    not os.environ.get("REQUIRE_HISTORY")
+    and not all((HISTORY / f"meter_events_{m}.parquet").exists() for m in MONTHS),
+    reason="run `npm run history` in edge/",
 )
 CFG = PipelineConfig()
 

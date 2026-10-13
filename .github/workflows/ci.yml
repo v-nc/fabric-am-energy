@@ -1,0 +1,86 @@
+# Tests and static checks on every push to main and every pull request. Nothing here touches Fabric: the workspace
+# follows the repository through Fabric Git integration, and its capacity is paused most of the time.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  edge:
+    name: Edge (TypeScript)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: edge
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: edge/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  spark:
+    name: Spark transformations (Python)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      REQUIRE_HISTORY: "1" # the end-to-end tests against the ground truth must run, not skip
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: edge/package-lock.json
+      - name: Generate the 12-month history and its ground truth (fixed seed, identical on every run)
+        working-directory: edge
+        run: |
+          npm ci
+          npm run history
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+          cache-dependency-glob: spark/uv.lock
+      - name: Cache the Delta Lake jars that Spark downloads at start
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.ivy2
+            ~/.ivy2.5.2
+          key: ivy-${{ runner.os }}-${{ hashFiles('spark/uv.lock') }}
+      - name: Unit and end-to-end tests
+        working-directory: spark
+        run: |
+          uv sync --locked
+          uv run pytest -ra
+
+  checks:
+    name: Lint and Fabric definitions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: Ruff
+        run: uvx ruff@0.17.0 check .
+      - name: Report fields against the semantic model, page structure, JSON syntax
+        run: python3 scripts/check_fabric.py
