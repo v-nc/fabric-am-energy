@@ -212,7 +212,7 @@ Activator's sources and e-mail recipient. In production these would come from a 
 
 The Fabric trial wasn't available for a brand-new tenant, so the project runs on a paid **F4** capacity
 (pay-as-you-go, about €0.67 per hour in Sweden Central), resumed only while working. Total compute so far: about
-**€10**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
+**€11**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
 in the Monitoring hub. Activator runs on the capacity too, so those night-time failures are not e-mailed; failures
 while the capacity runs are (decision 38).
 
