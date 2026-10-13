@@ -229,8 +229,7 @@ docker compose kill -s USR1 gateway      # toggle a simulated network outage
    `docker compose up`.
 7. Real-time path: with the Eventhouse `eh_am_energy` receiving the stream into `meter_events`, run
    `python3 scripts/kql.py mgmt @kql/setup.kql` (set `KUSTO_URI` to the Eventhouse's query URI). For a demo with
-   alerts within minutes, pause the Eventstream's Lakehouse destination first, then set the demo variables from
-   `.env.example` (decision 36).
+   alerts within minutes: `scripts/demo.sh start`, then `scripts/demo.sh stop` (decision 36).
 8. Market prices: Update from Git (step 3) brings the Warehouse `wh_am_energy` (its SQL project), the Dataflow Gen2
    `df_day_ahead_prices` and the Lakehouse shortcut `mart`. [`warehouse/setup.sql`](warehouse/setup.sql) recreates
    the Warehouse objects if needed (SQL editor, or `scripts/sql.py` with `WAREHOUSE_SERVER` set); the Dataflow's
@@ -288,7 +287,7 @@ while the capacity runs are (decision 38).
 | `dataflow/` | Power Query of the Dataflow Gen2 that loads the day-ahead prices |
 | `kql/` | Eventhouse setup: retention, the deduplicating materialized view, the real-time functions |
 | `model/` | Star schema and DAX measures, as designed before building |
-| `scripts/` | Capacity, workspace and Git setup; history upload; KQL and T-SQL clients; Fabric definition checks |
+| `scripts/` | Capacity, workspace and Git setup; history upload; demo mode; KQL and T-SQL clients; Fabric definition checks |
 | `.github/workflows/` | CI: tests, lint and definition checks on every push |
 | `docs/` | Design decisions, screenshots, report PDF |
 

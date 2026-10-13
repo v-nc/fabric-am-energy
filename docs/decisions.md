@@ -156,8 +156,10 @@ silver or gold; it is resumed afterwards with the start option "Now", which skip
 order matters: pause the destination before the simulator switches to demo mode. On the first demo it was paused
 14 s late, and 23 demo events went through to gold. Only 0.1 kWh, but they stretched the data-quality grid over six
 days the lab was switched off (completeness 96.1 % instead of 97.7 %). They were deleted from silver with a Delta
-DELETE and gold rebuilt; bronze keeps them, because silver reads bronze as an append-only stream. The KQL functions
-take a `scale` argument that converts demo time back to plant hours.
+DELETE and gold rebuilt; bronze keeps them, because silver reads bronze as an append-only stream. Since then
+`scripts/demo.sh` does it in the right order: it starts the containers only once the destination reports Paused,
+and on stop it drops unsent events from the gateway buffer before resuming the destination from "Now". The KQL
+functions take a `scale` argument that converts demo time back to plant hours.
 
 **37. The heat-up alert reads a KQL query and fires when `overrun` changes to true.** The first rule watched the raw
 stream with "state is equal to heat_up". That is a state condition, so it fires on every matching event: 91 e-mails
