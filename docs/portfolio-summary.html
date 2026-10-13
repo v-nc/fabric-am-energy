@@ -6,8 +6,8 @@
 <style>
   @page { size: A4; margin: 12mm 13mm; }
   * { box-sizing: border-box; }
-  body { font-family: "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif; color: #1f2328; font-size: 9.6pt;
-         line-height: 1.38; margin: 0; }
+  body { font-family: "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif; color: #1f2328; font-size: 9.3pt;
+         line-height: 1.32; margin: 0; }
   h1 { font-size: 17pt; margin: 0 0 2pt; letter-spacing: -0.2pt; }
   .sub { color: #57606a; font-size: 9.2pt; margin-bottom: 7pt; }
   .note { background: #f6f8fa; border-left: 3px solid #0969da; padding: 5pt 8pt; margin: 0 0 8pt; font-size: 8.9pt; }
@@ -21,7 +21,7 @@
   .kpi { border: 1px solid #d0d7de; border-radius: 4pt; padding: 5pt 6pt; }
   .kpi b { display: block; font-size: 13pt; color: #0b3d91; }
   .kpi span { font-size: 8.2pt; color: #57606a; }
-  img { display: block; width: 56%; margin: 6pt auto 0; border: 1px solid #d0d7de; border-radius: 3pt; }
+  img { display: block; width: 52%; margin: 6pt auto 0; border: 1px solid #d0d7de; border-radius: 3pt; }
   .tech { font-size: 8.8pt; color: #333; }
   .foot { margin-top: 4pt; font-size: 8.4pt; color: #57606a; }
   a { color: #0969da; text-decoration: none; }
@@ -57,12 +57,14 @@ Associate) is in preparation.</div>
       idempotent insert-only MERGE.</li>
   <li><b>Gold:</b> star schema with energy from kWh counters, a time-of-use tariff in local time, build jobs,
       heat-ups and an SCD type 2 machine dimension.</li>
-  <li><b>BI:</b> Direct Lake semantic model with DAX measures, a coverage grid for completeness, five report pages
+  <li><b>BI:</b> Direct Lake semantic model with DAX measures, a coverage grid for completeness, six report pages
       stored as PBIR JSON and deployed from Git.</li>
+  <li><b>Market prices:</b> Dataflow Gen2 loads public day-ahead prices into a Warehouse; a T-SQL procedure builds
+      a cost mart that reaches the model through a OneLake shortcut.</li>
   <li><b>Real time:</b> the same stream into an Eventhouse; KQL functions (deduplication, state runs, overruns) drive
       a Real-Time Dashboard and Activator e-mails: one per heat-up overrun, one per failed pipeline run.</li>
   <li><b>Operations:</b> daily pipeline with retries, table maintenance (OPTIMIZE, V-Order, VACUUM) and an explicit
-      model reframe; paid F4 capacity scripted and paused when idle (about €11 so far).</li>
+      model reframe; paid F4 capacity scripted and paused when idle (about €12 so far).</li>
 </ul>
 </div>
 <div>
@@ -80,14 +82,15 @@ Associate) is in preparation.</div>
 </ul>
 <h2>Technology</h2>
 <div class="tech">Microsoft Fabric (Eventstream, Lakehouse, Spark notebooks, Environment, pipelines, Direct Lake,
-Power BI, Eventhouse and KQL, Real-Time Dashboard, Activator, Git integration, REST API) · PySpark, Delta Lake · Python, pytest · TypeScript, Node.js, node-opcua,
+Power BI, Eventhouse and KQL, Real-Time Dashboard, Activator, Dataflow Gen2, Warehouse and T-SQL, OneLake shortcuts,
+Git integration, REST API) · PySpark, Delta Lake · Python, pytest · TypeScript, Node.js, node-opcua,
 vitest · Docker · GitHub · Azure CLI</div>
 </div>
 </div>
 
 <img src="screenshots/01-park-overview.png" alt="Park overview page of the report">
 
-<div class="foot">Next: Dataflow Gen2 and a Warehouse, CI on GitHub Actions, a demo video. Details, screenshots and the
-38 written design decisions are in the repository.</div>
+<div class="foot">Next: CI on GitHub Actions and a demo video. Details, screenshots and the 43 written design decisions
+are in the repository.</div>
 </body>
 </html>

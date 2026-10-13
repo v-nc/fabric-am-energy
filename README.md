@@ -7,7 +7,9 @@ versioned in this repository.
 > **What this is.** A personal portfolio project on **simulated data**, inspired by an energy-monitoring project I
 > built in 2019 (an OPC UA aggregation client, InfluxDB and Grafana, with alerts on 3D printers left in an over-long
 > heat-up). No real machine, customer or company data is used. Every power and timing parameter is an assumption,
-> listed in [`config/assumptions.yaml`](config/assumptions.yaml).
+> listed in [`config/assumptions.yaml`](config/assumptions.yaml). The one exception is public: the day-ahead market
+> prices on the market-price page are real (Energy-Charts; data Bundesnetzagentur | SMARD.de,
+> [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)).
 >
 > Microsoft Fabric DP-700 (Fabric Data Engineer Associate): in preparation.
 
@@ -17,13 +19,15 @@ versioned in this repository.
 
 - **Edge:** an OPC UA server simulates 10 3D printers in two halls with their energy meters. A TypeScript gateway
   subscribes, buffers in SQLite (store-and-forward) and streams to Fabric over the Event Hubs protocol.
-- **Fabric:** Eventstream → Lakehouse (bronze, silver, gold) → Direct Lake semantic model → five-page Power BI report,
+- **Fabric:** Eventstream → Lakehouse (bronze, silver, gold) → Direct Lake semantic model → six-page Power BI report,
   orchestrated by a daily pipeline with table maintenance, on a paid F4 capacity that is paused when idle.
 - **Real time:** the same Eventstream feeds an Eventhouse. KQL functions drive a Real-Time Dashboard and Activator
   e-mail alerts: one per heat-up overrun (the 2019 alert, live) and one per failed run of the daily pipeline.
+- **Market prices:** a Dataflow Gen2 loads public Swiss day-ahead prices into a Warehouse, where a T-SQL procedure
+  joins them with gold; the mart reaches the report through a OneLake shortcut.
 - **Engineering:** transformations are a tested Python package (67 automated tests in total) deployed to Fabric as a
   wheel; every Fabric item, including the semantic model and the report, is stored here as text through Git
-  integration; 38 [design decisions](docs/decisions.md) are written down.
+  integration; 43 [design decisions](docs/decisions.md) are written down.
 - **Checked against the truth:** the simulator injects faults and records them in a ground-truth file. The pipeline
   removed exactly the 10,522 injected duplicates, found 100 of 108 injected heat-up overruns with no false alarm, and
   reports 97.7 % data completeness.
@@ -34,8 +38,9 @@ versioned in this repository.
 |---|---|
 | [![Machine drill-down](docs/screenshots/02-machine-drill-down.png)](docs/screenshots/02-machine-drill-down.png) **Machine drill-down:** one 3D printer at a time | [![Build jobs](docs/screenshots/03-build-jobs.png)](docs/screenshots/03-build-jobs.png) **Build jobs:** energy per job and per build hour |
 | [![Heat-up anomalies](docs/screenshots/04-heat-up-anomalies.png)](docs/screenshots/04-heat-up-anomalies.png) **Heat-up anomalies:** the 2019 alert, recomputed over a year | [![Data quality](docs/screenshots/05-data-quality.png)](docs/screenshots/05-data-quality.png) **Data quality:** what arrived versus what was expected |
+| [![Market prices](docs/screenshots/06-market-prices.png)](docs/screenshots/06-market-prices.png) **Market prices:** the park's consumption against hourly day-ahead prices | |
 
-All five pages as a PDF: [docs/rpt_am_energy.pdf](docs/rpt_am_energy.pdf). A one-page summary of the project:
+All six pages as a PDF: [docs/rpt_am_energy.pdf](docs/rpt_am_energy.pdf). A one-page summary of the project:
 [docs/portfolio-summary.pdf](docs/portfolio-summary.pdf).
 
 ## Architecture
@@ -57,20 +62,26 @@ flowchart LR
     gold[("gold<br/>star schema")]
     sm["Direct Lake<br/>semantic model"]
     rpt["Power BI report"]
-    pl["pipeline pl_daily<br/>silver → gold → maintenance<br/>→ model reframe"]
+    pl["pipeline pl_daily<br/>prices ∥ silver → gold → mart<br/>→ model reframe"]
     kql[("Eventhouse<br/>KQL database<br/>30 days")]
     rtd["Real-Time<br/>Dashboard"]
     act["Activator<br/>e-mail alerts"]
+    df["Dataflow Gen2<br/>day-ahead prices"]
+    wh[("Warehouse<br/>ref + mart (T-SQL)")]
     es --> bronze
     files --> bronze --> silver --> gold --> sm --> rpt
     pl -.-> silver
     es --> kql --> rtd
     kql -- "OverrunStatus()<br/>every minute" --> act
     pl -. "job events" .-> act
+    df --> wh
+    gold -- "cross-database query" --> wh
+    wh -- "OneLake shortcut" --> sm
   end
 
   gw -- "JSON events<br/>Event Hubs protocol" --> es
   hist -- "upload" --> files
+  api["Energy-Charts API<br/>CH day-ahead prices"] --> df
   fabric <-. "Git integration<br/>/fabric" .-> repo["this repository"]
 ```
 
@@ -129,6 +140,19 @@ The daily pipeline: silver, then gold, then table maintenance and the semantic m
 |---|---|
 | [![Real-Time Dashboard](docs/screenshots/12-real-time-dashboard.png)](docs/screenshots/12-real-time-dashboard.png) **Real-Time Dashboard** during the demo: states, heat-ups and overruns, park power, freshness | [![Heat-up alert in Activator](docs/screenshots/13-activator-heat-up-alert.png)](docs/screenshots/13-activator-heat-up-alert.png) **Heat-up alert in Activator:** one activation, and one e-mail, per overrun |
 
+**Market prices: Dataflow Gen2 and a Warehouse**
+- A Dataflow Gen2 (Power Query) loads hourly Swiss day-ahead prices from a public REST API into a Warehouse table:
+  a static base URL with `RelativePath` and `Query`, so the service can refresh it; staging and a fixed schema, as
+  the Warehouse requires.
+- T-SQL in the Warehouse: a stored procedure rebuilds the hourly cost mart in one transaction, reading gold through a
+  cross-database query. The Warehouse is versioned in Git as a SQL database project;
+  [`warehouse/setup.sql`](warehouse/setup.sql) is the readable source.
+- A OneLake schema shortcut exposes the mart in the Lakehouse, so the Direct Lake model keeps one source, and the
+  hall roles reach the new table through `machine_sk`.
+- What it shows: the park pays the market average (+0.2 %), because builds run around the clock. The market is
+  cheapest at 13:00 (solar) and dearest at 19:00, while the fixed tariff's peak window is weekdays 07:00 to 20:00;
+  239 hours had negative prices, mostly in spring.
+
 **Platform and operations**
 - Paid F4 capacity created and paused by script, with a cost budget; Spark pool sized for F4 (one node per session)
   after hitting the capacity's Spark limit.
@@ -171,6 +195,7 @@ project:
 - **Coverage grid for data quality** (30): completeness stays right when machines change halls.
 - **Hot path in an Eventhouse** (33), deduplicated like silver (34).
 - **Alerts on transitions, not states** (37): one e-mail per heat-up overrun instead of one per event.
+- **Mart in a Warehouse, shortcut into the Lakehouse** (40, 41): a T-SQL transaction, no copy, one model source.
 
 ## Rebuild it
 
@@ -201,18 +226,23 @@ docker compose kill -s USR1 gateway      # toggle a simulated network outage
    `python3 scripts/kql.py mgmt @kql/setup.kql` (set `KUSTO_URI` to the Eventhouse's query URI). For a demo with
    alerts within minutes, pause the Eventstream's Lakehouse destination first, then set the demo variables from
    `.env.example` (decision 36).
+8. Market prices: Update from Git (step 3) brings the Warehouse `wh_am_energy` (its SQL project), the Dataflow Gen2
+   `df_day_ahead_prices` and the Lakehouse shortcut `mart`. [`warehouse/setup.sql`](warehouse/setup.sql) recreates
+   the Warehouse objects if needed (SQL editor, or `scripts/sql.py` with `WAREHOUSE_SERVER` set); the Dataflow's
+   query is in [`dataflow/day_ahead_price.pq`](dataflow/day_ahead_price.pq).
 
 **What isn't automated yet (honest list):** a new workspace has new item ids, so these need rebinding by hand: the
 notebooks' default `lakehouse_id` parameter, the Direct Lake source in `expressions.tmdl`, the pipeline's semantic
-model refresh activity (and its connection), the Eventstream key, the Real-Time Dashboard's data source, and the
-Activator's sources and e-mail recipient. In production these would come from a Variable Library or deployment rules
+model refresh activity (and its connection), the Eventstream key, the Real-Time Dashboard's data source, the
+Activator's sources and e-mail recipient, the Lakehouse shortcut's target, and the pipeline's Dataflow and
+stored-procedure activities. In production these would come from a Variable Library or deployment rules
 (fabric-cicd).
 
 ## Costs
 
 The Fabric trial wasn't available for a brand-new tenant, so the project runs on a paid **F4** capacity
 (pay-as-you-go, about €0.67 per hour in Sweden Central), resumed only while working. Total compute so far: about
-**€11**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
+**€12**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
 in the Monitoring hub. Activator runs on the capacity too, so those night-time failures are not e-mailed; failures
 while the capacity runs are (decision 38).
 
@@ -229,14 +259,16 @@ while the capacity runs are (decision 38).
 - **Real time:** the dashboard shows raw power values, including the spikes that silver quarantines, and the overrun
   alert is evaluated once a minute. Tiles and alert query are set to the demo time scale (`scale` 0.0333); outside a
   demo the heat-up rule is stopped, and a dashboard parameter for the scale would make this a single switch.
+- **Market prices:** the day-ahead price is the energy component only; a full dynamic-tariff comparison would need a
+  model of grid fees and levies.
 - **Scale:** gold would recompute only the days touched by new data instead of rebuilding in full.
 
 ## DP-700 skill mapping
 
 | Skill area | Covered here | Next |
 |---|---|---|
-| Implement and manage an analytics solution | Workspace and Spark settings, Environment, Git integration, pipeline orchestration, schedule and parameters, semantic model security roles, capacity management | Deployment pipeline, workspace roles and item permissions |
-| Ingest and transform data | Eventstream, Spark Structured Streaming, PySpark and Spark SQL, full and incremental loads, deduplication, late and missing data, SCD type 2, windowing in Spark, Eventhouse and KQL (materialized view, window functions, stored functions) | Dataflow Gen2, Warehouse, a materialized lake view |
+| Implement and manage an analytics solution | Workspace and Spark settings, Environment, Git integration, pipeline orchestration, schedule and parameters, semantic model security roles, capacity management, OneLake shortcuts | Deployment pipeline, workspace roles and item permissions |
+| Ingest and transform data | Eventstream, Spark Structured Streaming, PySpark and Spark SQL, full and incremental loads, deduplication, late and missing data, SCD type 2, windowing in Spark, Eventhouse and KQL (materialized view, window functions, stored functions), Dataflow Gen2 (Power Query, web API), T-SQL in a Warehouse (stored procedure, transaction, cross-database query) | A materialized lake view |
 | Monitor and optimize | Monitoring hub, Eventstream data insights, OPTIMIZE / V-Order / VACUUM, Spark pool sizing and high concurrency, Direct Lake framing, Activator alerts on pipeline failures (job events) and heat-up overruns (KQL) | Capacity Metrics app |
 
 ## Repository layout
@@ -246,10 +278,12 @@ while the capacity runs are (decision 38).
 | `config/` | Simulation assumptions (power, timing, fault rates) |
 | `edge/` | TypeScript: OPC UA simulator, edge gateway, history generator, shared event schema |
 | `spark/` | Silver and gold transformations as a Python package, tested locally |
-| `fabric/` | Fabric item definitions written by Git integration: notebooks, pipeline, Environment, Eventstream, Lakehouse, semantic model (TMDL), report (PBIR), Eventhouse, Real-Time Dashboard, Activator |
+| `fabric/` | Fabric item definitions written by Git integration: notebooks, pipeline, Environment, Eventstream, Lakehouse, semantic model (TMDL), report (PBIR), Eventhouse, Real-Time Dashboard, Warehouse (SQL project), Dataflow Gen2. The Activator is kept out (its definition holds an e-mail address) |
+| `warehouse/` | Warehouse setup in T-SQL: schemas, the hourly cost mart, its stored procedure, a view |
+| `dataflow/` | Power Query of the Dataflow Gen2 that loads the day-ahead prices |
 | `kql/` | Eventhouse setup: retention, the deduplicating materialized view, the real-time functions |
 | `model/` | Star schema and DAX measures, as designed before building |
-| `scripts/` | Capacity, workspace and Git setup; history upload; KQL client |
+| `scripts/` | Capacity, workspace and Git setup; history upload; KQL and T-SQL clients |
 | `docs/` | Design decisions, screenshots, report PDF |
 
 ## Status
@@ -261,7 +295,7 @@ while the capacity runs are (decision 38).
 | 2 | Ingestion: live stream and history into bronze | ✅ |
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
 | 4 | Direct Lake semantic model and Power BI report | ✅ (RLS enforcement open) |
-| 5 | Eventhouse/KQL, Real-Time Dashboard and Activator alerts; then Dataflow Gen2 and Warehouse, CI | 🔄 real-time path done; Dataflow Gen2, Warehouse and CI next |
+| 5 | Eventhouse/KQL, Real-Time Dashboard and Activator alerts; Dataflow Gen2 and Warehouse; CI | 🔄 real-time path, Dataflow Gen2 and Warehouse done; CI next |
 | 6 | Packaging: README, screenshots, demo video | 🔄 first version done; video after phase 5 |
 
 ## License

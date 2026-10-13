@@ -151,9 +151,13 @@ the freshness tile it once reported more distinct measurements than rows.
 
 **36. A demo mode that never reaches the history.** For a live demo the simulator runs 30 times faster with a 50 %
 overrun probability (environment overrides, validated and unit-tested), so an alert happens within minutes instead of
-every two days or so. Meanwhile the Eventstream's Lakehouse destination is paused, so no demo event reaches bronze or gold; it is
-resumed afterwards with the start option "Now", which skips what arrived during the pause. The KQL functions take a
-`scale` argument that converts demo time back to plant hours.
+every two days or so. Meanwhile the Eventstream's Lakehouse destination is paused, so no demo event reaches
+silver or gold; it is resumed afterwards with the start option "Now", which skips what arrived during the pause. The
+order matters: pause the destination before the simulator switches to demo mode. On the first demo it was paused
+14 s late, and 23 demo events went through to gold. Only 0.1 kWh, but they stretched the data-quality grid over six
+days the lab was switched off (completeness 96.1 % instead of 97.7 %). They were deleted from silver with a Delta
+DELETE and gold rebuilt; bronze keeps them, because silver reads bronze as an append-only stream. The KQL functions
+take a `scale` argument that converts demo time back to plant hours.
 
 **37. The heat-up alert reads a KQL query and fires when `overrun` changes to true.** The first rule watched the raw
 stream with "state is equal to heat_up". That is a state condition, so it fires on every matching event: 91 e-mails
@@ -176,6 +180,41 @@ for `pl_daily` from the Real-Time hub and sends an e-mail. Job events also cover
 before their first activity, which an "on failure" branch inside the pipeline would miss. It was tested by cancelling
 a run: the e-mail went out the same second. Activator runs on the capacity, so failures while the capacity is paused
 (the nightly schedule) cannot be alerted; a production capacity runs continuously.
+
+## Market prices: Dataflow Gen2 and a Warehouse
+
+**39. Real public market prices, loaded by Dataflow Gen2.** Hourly day-ahead prices of the Swiss bidding zone come
+from the Energy-Charts API (data Bundesnetzagentur | SMARD.de, CC BY 4.0), the only real data in the project: public
+and unrelated to any company. Dataflow Gen2 fits a small REST source that needs shaping rather than code: Power Query
+turns two parallel JSON arrays into rows, converts Unix seconds to UTC and types the columns. The base URL is static,
+with `RelativePath` and `Query`, so the service can refresh it; a URL built by string concatenation is a dynamic
+data source and cannot be refreshed. Full refresh, because about 9,000 rows load in seconds. Writing to a Warehouse
+requires staging, a fixed schema and the connection option "Navigate using full hierarchy" (to reach the `ref`
+schema); the Warehouse has no DateTimeZone type, so every time is UTC.
+
+**40. The mart is built in a Warehouse, with T-SQL.** `mart.usp_refresh_energy_cost` reads gold through a
+cross-database query (three-part names on the Lakehouse's SQL analytics endpoint, no copy) and rebuilds
+`mart.energy_cost_hourly` in one transaction: the DELETE and the INSERT commit together, so readers see the old or
+the new mart, never half of it. A Warehouse suits SQL-first consumers such as controlling, and multi-table
+transactions; Spark in the Lakehouse could have produced the same table. In Git the Warehouse is a SQL database
+project with one `.sql` file per object. Its default collation is case-sensitive (`Latin1_General_100_BIN2_UTF8`).
+
+**41. A OneLake schema shortcut brings the mart into the Lakehouse.** `lh_energy.mart` points at `wh_am_energy.mart`:
+nothing is copied, and the Direct Lake model keeps one source for all its tables. The new table relates to
+`dim_machine` through `machine_sk`, so the hall roles reach it too.
+
+**42. Prices are compared in shape, not in totals.** The day-ahead price is the energy component only; the fixed
+time-of-use tariff includes grid fees and levies. So the page compares the park's load-weighted price with the
+market's time-weighted average: +0.2 %, because builds run around the clock and the park simply pays the average.
+It also shows where the cheap hours are. The market is cheapest at 13:00 (solar) and dearest at 19:00, while the
+fixed tariff counts 07:00 to 20:00 on weekdays as peak: its window charges the market's cheapest hours as peak and
+leaves the dearest evening hours off-peak. 239 hours had negative prices, mostly in spring.
+
+**43. `pl_daily`: prices in parallel with silver, the mart after gold and prices, the reframe last.** The model is
+still reframed once (29). If the price API is down, the dataflow fails after two retries, the mart and the reframe
+are skipped, the run fails and the failure alert fires; the report keeps yesterday's consistent frame. The
+alternative, a reframe after gold plus a second one after the mart, would keep the core pages fresh during an API
+outage at the price of two reframes per run.
 
 ## Platform
 
