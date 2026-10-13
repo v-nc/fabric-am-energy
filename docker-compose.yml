@@ -8,6 +8,8 @@ services:
     environment:
       OPCUA_PORT: "4840"
       DURATION_SCALE: ${DURATION_SCALE:-1}
+      HEATUP_OVERRUN_PROBABILITY: ${HEATUP_OVERRUN_PROBABILITY:-}
+      IDLE_BETWEEN_JOBS_H: ${IDLE_BETWEEN_JOBS_H:-}
       PKI_FOLDER: /data/pki
     ports: ["4840:4840"]
     volumes: [sim-data:/data]
