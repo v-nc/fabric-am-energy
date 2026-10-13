@@ -46,13 +46,16 @@
     | extend duplicates = events - measurements, age_s = datetime_diff('second', now(), last_measurement),
              p50_latency_s = round(p50_latency_s, 1), p95_latency_s = round(p95_latency_s, 1)
 }
-.create-or-alter function with (folder = "realtime", docstring = "Current heat-up status per 3D printer: heat-up duration in plant hours and overrun flag, one row per 3D printer", skipvalidation = "true") OverrunStatus(lookback:timespan=time(12:00:00), scale:real=1.0, threshold_h:real=2.6) {
-    let heatups = HeatupRuns(lookback, scale, threshold_h) | where is_running | project machine_id, heatup_start = run_start, heatup_h = duration_h;
+.create-or-alter function with (folder = "realtime", docstring = "Heat-up status per 3D printer: latest heat-up in plant hours, flagged as overrun while it runs and for a grace period after it ended", skipvalidation = "true") OverrunStatus(lookback:timespan=time(12:00:00), scale:real=1.0, threshold_h:real=2.6, grace:timespan=time(00:03:00)) {
+    let lastheat = HeatupRuns(lookback, scale, threshold_h)
+        | summarize arg_max(run_start, *) by machine_id
+        | where is_running or run_last > ago(grace)
+        | project machine_id, heatup_start = run_start, heatup_h = duration_h, heatup_running = is_running;
     CurrentState()
-    | join kind=leftouter heatups on machine_id
-    | extend heatup_h = coalesce(heatup_h, 0.0)
+    | join kind=leftouter lastheat on machine_id
+    | extend heatup_h = coalesce(heatup_h, 0.0), heatup_running = coalesce(heatup_running, false)
     | extend overrun = heatup_h > threshold_h
-    | project machine_id, state, heatup_start, heatup_h, overrun, job_id, power_kw, last_reading
+    | project machine_id, state, heatup_start, heatup_h, heatup_running, overrun, job_id, power_kw, last_reading
 }
 .create-or-alter materialized-view  readings_dedup on table meter_events { meter_events | summarize take_any(*) by meter_id, ts_source }
 .alter table meter_events policy retention @'{"SoftDeletePeriod":"30.00:00:00","Recoverability":"Disabled"}'
