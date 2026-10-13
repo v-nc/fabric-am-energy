@@ -125,6 +125,10 @@ The daily pipeline: silver, then gold, then table maintenance and the semantic m
   a first version on the raw stream sent one per event), and failed `pl_daily` runs from Fabric job events.
 - A demo mode (30 times faster, more overruns) kept out of the history by pausing the Lakehouse destination.
 
+| | |
+|---|---|
+| [![Real-Time Dashboard](docs/screenshots/12-real-time-dashboard.png)](docs/screenshots/12-real-time-dashboard.png) **Real-Time Dashboard** during the demo: states, heat-ups and overruns, park power, freshness | [![Heat-up alert in Activator](docs/screenshots/13-activator-heat-up-alert.png)](docs/screenshots/13-activator-heat-up-alert.png) **Heat-up alert in Activator:** one activation, and one e-mail, per overrun |
+
 **Platform and operations**
 - Paid F4 capacity created and paused by script, with a cost budget; Spark pool sized for F4 (one node per session)
   after hitting the capacity's Spark limit.
@@ -223,7 +227,8 @@ while the capacity runs are (decision 38).
   deployment pipelines or fabric-cicd from GitHub Actions; a service principal or workspace identity instead of a
   personal OAuth connection; alerts to an on-call channel rather than one mailbox.
 - **Real time:** the dashboard shows raw power values, including the spikes that silver quarantines, and the overrun
-  alert is evaluated once a minute.
+  alert is evaluated once a minute. Tiles and alert query are set to the demo time scale (`scale` 0.0333); outside a
+  demo the heat-up rule is stopped, and a dashboard parameter for the scale would make this a single switch.
 - **Scale:** gold would recompute only the days touched by new data instead of rebuilding in full.
 
 ## DP-700 skill mapping

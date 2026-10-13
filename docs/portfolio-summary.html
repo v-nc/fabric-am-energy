@@ -21,7 +21,7 @@
   .kpi { border: 1px solid #d0d7de; border-radius: 4pt; padding: 5pt 6pt; }
   .kpi b { display: block; font-size: 13pt; color: #0b3d91; }
   .kpi span { font-size: 8.2pt; color: #57606a; }
-  img { display: block; width: 76%; margin: 6pt auto 0; border: 1px solid #d0d7de; border-radius: 3pt; }
+  img { display: block; width: 56%; margin: 6pt auto 0; border: 1px solid #d0d7de; border-radius: 3pt; }
   .tech { font-size: 8.8pt; color: #333; }
   .foot { margin-top: 4pt; font-size: 8.4pt; color: #57606a; }
   a { color: #0969da; text-decoration: none; }
@@ -36,13 +36,13 @@ energy-monitoring system I built in 2019 for an internal park of 3D printers (OP
 alerts on over-long heat-ups). No real machine, customer or company data is used. DP-700 (Fabric Data Engineer
 Associate) is in preparation.</div>
 
-<div class="flow">OPC UA (10 simulated 3D printers + meters) → edge gateway → Eventstream → Lakehouse bronze → silver → gold → Direct Lake model → Power BI</div>
+<div class="flow">OPC UA (10 simulated 3D printers + meters) → edge gateway → Eventstream → Lakehouse bronze → silver → gold → Direct Lake model → Power BI<br>Eventstream → Eventhouse (KQL) → Real-Time Dashboard and Activator e-mail alerts</div>
 
 <div class="kpis">
   <div class="kpi"><b>10,522 / 10,522</b><span>injected duplicates removed, none lost</span></div>
   <div class="kpi"><b>100 of 108</b><span>heat-up overruns found, 0 false alarms</span></div>
   <div class="kpi"><b>97.7 %</b><span>data completeness, by 3D printer and day</span></div>
-  <div class="kpi"><b>64 tests</b><span>local Spark and TypeScript, against a ground truth</span></div>
+  <div class="kpi"><b>67 tests</b><span>local Spark and TypeScript, against a ground truth</span></div>
 </div>
 
 <div class="grid">
@@ -59,8 +59,10 @@ Associate) is in preparation.</div>
       heat-ups and an SCD type 2 machine dimension.</li>
   <li><b>BI:</b> Direct Lake semantic model with DAX measures, a coverage grid for completeness, five report pages
       stored as PBIR JSON and deployed from Git.</li>
+  <li><b>Real time:</b> the same stream into an Eventhouse; KQL functions (deduplication, state runs, overruns) drive
+      a Real-Time Dashboard and Activator e-mails: one per heat-up overrun, one per failed pipeline run.</li>
   <li><b>Operations:</b> daily pipeline with retries, table maintenance (OPTIMIZE, V-Order, VACUUM) and an explicit
-      model reframe; paid F4 capacity scripted and paused when idle (about €8 so far).</li>
+      model reframe; paid F4 capacity scripted and paused when idle (about €10 so far).</li>
 </ul>
 </div>
 <div>
@@ -74,17 +76,18 @@ Associate) is in preparation.</div>
       you get it wrong.</li>
   <li>Direct Lake framing: why the model is reframed once at the end of the pipeline.</li>
   <li>Transformations as a tested Python package, shipped to Fabric as a wheel in an Environment.</li>
+  <li>Why an alert must fire on a transition, not a state: the first heat-up rule sent 91 e-mails.</li>
 </ul>
 <h2>Technology</h2>
 <div class="tech">Microsoft Fabric (Eventstream, Lakehouse, Spark notebooks, Environment, pipelines, Direct Lake,
-Power BI, Git integration, REST API) · PySpark, Delta Lake · Python, pytest · TypeScript, Node.js, node-opcua,
+Power BI, Eventhouse and KQL, Real-Time Dashboard, Activator, Git integration, REST API) · PySpark, Delta Lake · Python, pytest · TypeScript, Node.js, node-opcua,
 vitest · Docker · GitHub · Azure CLI</div>
 </div>
 </div>
 
 <img src="screenshots/01-park-overview.png" alt="Park overview page of the report">
 
-<div class="foot">Next: Eventhouse with KQL and Activator alerts (the 2019 heat-up alert, live), Dataflow Gen2 and a
-Warehouse, CI on GitHub Actions. Details, screenshots and the 32 written design decisions are in the repository.</div>
+<div class="foot">Next: Dataflow Gen2 and a Warehouse, CI on GitHub Actions, a demo video. Details, screenshots and the
+38 written design decisions are in the repository.</div>
 </body>
 </html>

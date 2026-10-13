@@ -166,7 +166,10 @@ negligible next to a 2.6-hour threshold. Firing once per episode always comes fr
 true", "changes to", "increases above"), never from a state condition. One more trap: the alert wizard typed every
 column of the query as text, so the boolean arrives as "0"/"1" and a logical "becomes true" never matched. The rule
 uses the text condition "changes to 1"; Activator's projected activations on the past hour (zero before the fix,
-exactly one per overrun after) showed the difference before any e-mail was due.
+exactly one per overrun after) showed the difference before any e-mail was due. And a polled condition can be
+missed: of the first three live overruns, two sent their e-mail and one did not, because that heat-up ended 30 s
+after crossing the threshold, between two queries. `OverrunStatus()` now keeps the flag up for three minutes after
+an overrun heat-up ends, longer than two polling intervals, which still gives one transition per overrun.
 
 **38. Pipeline failures are alerted through Fabric job events.** An Activator rule receives `ItemJobFailed` events
 for `pl_daily` from the Real-Time hub and sends an e-mail. Job events also cover cancelled runs and runs that fail

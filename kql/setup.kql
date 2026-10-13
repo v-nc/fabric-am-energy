@@ -48,13 +48,18 @@
 // Source of the heat-up alert. One row per 3D printer, so that Activator sees overrun go from false to true
 // exactly once per overrun. A rule on the raw stream (state "is equal to" heat_up, "when it has been true for"
 // 5 minutes) sends one action per event once the duration is reached: 13 e-mails for a single overrun.
-.create-or-alter function with (folder="realtime", docString="Current heat-up status per 3D printer: heat-up duration in plant hours and overrun flag, one row per 3D printer") OverrunStatus(lookback:timespan = 12h, scale:real = 1.0, threshold_h:real = 2.6) {
-    let heatups = HeatupRuns(lookback, scale, threshold_h) | where is_running | project machine_id, heatup_start = run_start, heatup_h = duration_h;
+// Activator runs this query once a minute, so the flag stays up for `grace` after an overrun heat-up has ended:
+// a heat-up that ends 30 s after crossing the threshold would otherwise never be seen (LS07, 2.86 h, no e-mail).
+.create-or-alter function with (folder="realtime", docString="Heat-up status per 3D printer: latest heat-up in plant hours, flagged as overrun while it runs and for a grace period after it ended") OverrunStatus(lookback:timespan = 12h, scale:real = 1.0, threshold_h:real = 2.6, grace:timespan = 3m) {
+    let lastheat = HeatupRuns(lookback, scale, threshold_h)
+        | summarize arg_max(run_start, *) by machine_id
+        | where is_running or run_last > ago(grace)
+        | project machine_id, heatup_start = run_start, heatup_h = duration_h, heatup_running = is_running;
     CurrentState()
-    | join kind=leftouter heatups on machine_id
-    | extend heatup_h = coalesce(heatup_h, 0.0)
+    | join kind=leftouter lastheat on machine_id
+    | extend heatup_h = coalesce(heatup_h, 0.0), heatup_running = coalesce(heatup_running, false)
     | extend overrun = heatup_h > threshold_h
-    | project machine_id, state, heatup_start, heatup_h, overrun, job_id, power_kw, last_reading
+    | project machine_id, state, heatup_start, heatup_h, heatup_running, overrun, job_id, power_kw, last_reading
 }
 
 .create-or-alter function with (folder="realtime", docString="Park power in tumbling windows: average per 3D printer and window, summed over the park") ParkPower(lookback:timespan = 1h, window:timespan = 1m) {
