@@ -16,7 +16,7 @@
         "x": 0,
         "y": 0,
         "width": 9,
-        "height": 7
+        "height": 8
       },
       "queryRef": {
         "kind": "query",
@@ -40,7 +40,7 @@
       "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
       "layout": {
         "x": 0,
-        "y": 7,
+        "y": 8,
         "width": 24,
         "height": 4
       },
@@ -85,7 +85,7 @@
       "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
       "layout": {
         "x": 0,
-        "y": 11,
+        "y": 12,
         "width": 24,
         "height": 8
       },
@@ -132,7 +132,7 @@
         "x": 9,
         "y": 0,
         "width": 15,
-        "height": 7
+        "height": 8
       },
       "queryRef": {
         "kind": "query",
@@ -180,9 +180,9 @@
       "pageId": "c39752c9-ec00-4ffa-b546-9e909f832a54",
       "layout": {
         "x": 0,
-        "y": 19,
+        "y": 20,
         "width": 14,
-        "height": 4
+        "height": 3
       },
       "queryRef": {
         "kind": "query",
@@ -208,7 +208,7 @@
         "x": 0,
         "y": 23,
         "width": 24,
-        "height": 6
+        "height": 8
       },
       "queryRef": {
         "kind": "query",
@@ -217,9 +217,9 @@
       "visualOptions": {
         "table__enableRenderLinks": true,
         "colorRulesDisabled": false,
-        "crossFilter": [],
         "crossFilterDisabled": false,
         "drillthroughDisabled": false,
+        "crossFilter": [],
         "drillthrough": [],
         "table__renderLinks": [],
         "colorRules": [
