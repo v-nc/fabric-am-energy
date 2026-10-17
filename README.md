@@ -91,7 +91,9 @@ What the workspace looks like in Fabric's lineage view:
 
 ![Lineage view of the workspace](docs/screenshots/10-lineage.png)
 
-The daily pipeline: silver, then gold, then table maintenance and the semantic model reframe in parallel.
+The daily pipeline: the day-ahead prices (Dataflow Gen2) load in parallel with silver; gold follows silver; the
+Warehouse mart (stored procedure) waits for gold and the prices; table maintenance runs after gold, and the
+semantic model is reframed once, at the end.
 
 ![Daily pipeline](docs/screenshots/11-pipeline.png)
 
