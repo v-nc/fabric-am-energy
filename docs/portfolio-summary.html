@@ -29,7 +29,7 @@
 </head>
 <body>
 <h1>Energy monitoring for a 3D printer park, built in Microsoft Fabric</h1>
-<div class="sub">Portfolio project by Vincent Antoine · <a href="https://github.com/v-nc/fabric-am-energy">github.com/v-nc/fabric-am-energy</a> · October 2026</div>
+<div class="sub">Portfolio project by Vincent Antoine · <a href="https://github.com/v-nc/fabric-am-energy">github.com/v-nc/fabric-am-energy</a> · demo video <a href="https://youtu.be/nlJAalXInHI">youtu.be/nlJAalXInHI</a> · October 2026</div>
 
 <div class="note"><b>Personal portfolio project on simulated data.</b> It rebuilds, on Microsoft Fabric, an
 energy-monitoring system I built in 2019 for an internal park of 3D printers (OPC UA aggregation, InfluxDB, Grafana,
@@ -64,7 +64,7 @@ Associate) is in preparation.</div>
   <li><b>Real time:</b> the same stream into an Eventhouse; KQL functions (deduplication, state runs, overruns) drive
       a Real-Time Dashboard and Activator e-mails: one per heat-up overrun, one per failed pipeline run.</li>
   <li><b>Operations:</b> daily pipeline with retries, table maintenance (OPTIMIZE, V-Order, VACUUM) and an explicit
-      model reframe; paid F4 capacity scripted and paused when idle (about €12 so far).</li>
+      model reframe; paid F4 capacity scripted and paused when idle (about €21 billed so far).</li>
 </ul>
 </div>
 <div>
@@ -90,7 +90,7 @@ vitest · Docker · GitHub Actions · Azure CLI</div>
 
 <img src="screenshots/01-park-overview.png" alt="Park overview page of the report">
 
-<div class="foot">Next: a demo video, then deployment from CI with fabric-cicd. Details, screenshots and the 44 written
+<div class="foot">Next: deployment from CI with fabric-cicd. Details, screenshots and the 44 written
 design decisions are in the repository.</div>
 </body>
 </html>

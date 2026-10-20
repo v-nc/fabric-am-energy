@@ -15,7 +15,10 @@ versioned in this repository.
 >
 > Microsoft Fabric DP-700 (Fabric Data Engineer Associate): in preparation.
 
-![Park overview page of the report](docs/screenshots/01-park-overview.png)
+[![Demo video: the system running live, 3 min 53 s](docs/screenshots/00-demo-video.png)](https://www.youtube.com/watch?v=nlJAalXInHI)
+
+**[Demo video (3:53)](https://www.youtube.com/watch?v=nlJAalXInHI)**, with captions: the system running live, from the
+OPC UA edge through the real-time dashboard and alert to the nightly pipeline, the report, Git and CI.
 
 ## At a glance
 
@@ -28,8 +31,8 @@ versioned in this repository.
 - **Market prices:** a Dataflow Gen2 loads public Swiss day-ahead prices into a Warehouse, where a T-SQL procedure
   joins them with gold; the mart reaches the report through a OneLake shortcut.
 - **Engineering:** transformations are a tested Python package deployed to Fabric as a wheel; 67 automated tests run
-  on GitHub Actions at every push; every Fabric item, including the semantic model and the report, is stored here as
-  text through Git integration; 44 [design decisions](docs/decisions.md) are written down.
+  on GitHub Actions at every push; every Fabric item but the Activator, including the semantic model and the report,
+  is stored here as text through Git integration; 44 [design decisions](docs/decisions.md) are written down.
 - **Checked against the truth:** the simulator injects faults and records them in a ground-truth file. The pipeline
   removed exactly the 10,522 injected duplicates, found 100 of 108 injected heat-up overruns with no false alarm, and
   reports 97.7 % data completeness.
@@ -38,9 +41,9 @@ versioned in this repository.
 
 | | |
 |---|---|
-| [![Machine drill-down](docs/screenshots/02-machine-drill-down.png)](docs/screenshots/02-machine-drill-down.png) **Machine drill-down:** one 3D printer at a time | [![Build jobs](docs/screenshots/03-build-jobs.png)](docs/screenshots/03-build-jobs.png) **Build jobs:** energy per job and per build hour |
-| [![Heat-up anomalies](docs/screenshots/04-heat-up-anomalies.png)](docs/screenshots/04-heat-up-anomalies.png) **Heat-up anomalies:** the 2019 alert, recomputed over a year | [![Data quality](docs/screenshots/05-data-quality.png)](docs/screenshots/05-data-quality.png) **Data quality:** what arrived versus what was expected |
-| [![Market prices](docs/screenshots/06-market-prices.png)](docs/screenshots/06-market-prices.png) **Market prices:** the park's consumption against hourly day-ahead prices | |
+| [![Park overview](docs/screenshots/01-park-overview.png)](docs/screenshots/01-park-overview.png) **Park overview:** energy, cost and machine states | [![Machine drill-down](docs/screenshots/02-machine-drill-down.png)](docs/screenshots/02-machine-drill-down.png) **Machine drill-down:** one 3D printer at a time |
+| [![Build jobs](docs/screenshots/03-build-jobs.png)](docs/screenshots/03-build-jobs.png) **Build jobs:** energy per job and per build hour | [![Heat-up anomalies](docs/screenshots/04-heat-up-anomalies.png)](docs/screenshots/04-heat-up-anomalies.png) **Heat-up anomalies:** the 2019 alert, recomputed over a year |
+| [![Data quality](docs/screenshots/05-data-quality.png)](docs/screenshots/05-data-quality.png) **Data quality:** what arrived versus what was expected | [![Market prices](docs/screenshots/06-market-prices.png)](docs/screenshots/06-market-prices.png) **Market prices:** the park's consumption against hourly day-ahead prices |
 
 All six pages as a PDF: [docs/rpt_am_energy.pdf](docs/rpt_am_energy.pdf). A one-page summary of the project:
 [docs/portfolio-summary.pdf](docs/portfolio-summary.pdf).
@@ -247,10 +250,13 @@ stored-procedure activities. In production these would come from a Variable Libr
 ## Costs
 
 The Fabric trial wasn't available for a brand-new tenant, so the project runs on a paid **F4** capacity
-(pay-as-you-go, about €0.67 per hour in Sweden Central), resumed only while working. Total compute so far: about
-**€12**, plus cents for storage. A paused capacity also means the daily schedule fails at night: the failed runs show
-in the Monitoring hub. Activator runs on the capacity too, so those night-time failures are not e-mailed; failures
-while the capacity runs are (decision 38).
+(pay-as-you-go, €0.67 per hour at list price in Sweden Central), resumed only while working: 19.5 hours over six
+working days. Billed so far: **€21** (Azure Cost Management, 1–20 October 2026), nearly all of it capacity usage;
+OneLake storage costs cents. The €8 above 19.5 hours at list price comes from pausing: Fabric smooths background jobs
+(Spark, Eventstream, Eventhouse) over the following 24 hours, and a pause bills the smoothed usage still outstanding
+at once. Pausing still pays: the capacity running around the clock would cost about €480 a month. A paused capacity
+also means the daily schedule fails at night: the failed runs show in the Monitoring hub. Activator runs on the
+capacity too, so those night-time failures are not e-mailed; failures while the capacity runs are (decision 38).
 
 ## Limits, and what production would add
 
@@ -303,7 +309,7 @@ while the capacity runs are (decision 38).
 | 3 | Silver and gold, orchestration, table maintenance | ✅ |
 | 4 | Direct Lake semantic model and Power BI report | ✅ (RLS enforcement open) |
 | 5 | Eventhouse/KQL, Real-Time Dashboard and Activator alerts; Dataflow Gen2 and Warehouse; CI | ✅ |
-| 6 | Packaging: README, screenshots, demo video | 🔄 second version done; demo video next |
+| 6 | Packaging: README, screenshots, demo video | ✅ |
 
 ## License
 
