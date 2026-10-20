@@ -46,7 +46,8 @@ OPC UA edge through the real-time dashboard and alert to the nightly pipeline, t
 | [![Data quality](docs/screenshots/05-data-quality.png)](docs/screenshots/05-data-quality.png) **Data quality:** what arrived versus what was expected | [![Market prices](docs/screenshots/06-market-prices.png)](docs/screenshots/06-market-prices.png) **Market prices:** the park's consumption against hourly day-ahead prices |
 
 All six pages as a PDF: [docs/rpt_am_energy.pdf](docs/rpt_am_energy.pdf). A one-page summary of the project:
-[docs/portfolio-summary.pdf](docs/portfolio-summary.pdf).
+[docs/portfolio-summary.pdf](docs/portfolio-summary.pdf), in French
+[docs/portfolio-summary.fr.pdf](docs/portfolio-summary.fr.pdf).
 
 ## Architecture
 
